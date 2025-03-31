@@ -60,6 +60,20 @@ Script.RegisterLooped(function()
 end)
 --#endregion
 
+--#region TELEPORTS
+
+local tp_feats = {}
+
+local function add_tp(hash, name, x, y, z, heading)
+    table.insert(tp_feats, hash)
+    FeatureMgr.AddFeature(Utils.Joaat(hash), name, eFeatureType.Button, "", function ()
+        PLAYER.START_PLAYER_TELEPORT(PLAYER.PLAYER_ID(), x, y, z, heading, true, false, true)
+    end)
+end
+
+add_tp("VINEWOODGARAGE", "Vinewood Garage", 182.97068786621094, -1158.740234375, 29.445926666259766, 207.99546813964844)
+--#endregion
+
 ClickGUI.AddTab("inxlua", function ()
     ImGui.Text("Welcome to inxlua!")
     ImGui.Text("Report bugs to inxanedev on discord")
@@ -80,4 +94,10 @@ ClickGUI.AddTab("UI", function ()
     ClickGUI.RenderFeature(Utils.Joaat("Smaller Reticle"))
     ClickGUI.RenderFeature(Utils.Joaat("Reticle Size"))
     ClickGUI.EndCustomChildWindow()
+end)
+
+ClickGUI.AddTab("Teleports", function ()
+    for _, feat in ipairs(tp_feats) do
+        ClickGUI.RenderFeature(Utils.Joaat(feat))
+    end
 end)
