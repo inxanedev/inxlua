@@ -91,38 +91,71 @@ FeatureMgr.AddFeature(Utils.Joaat("Print hovered feature info"), "Print Hovered 
 end)
 --#endregion
 
+--#region FORGE MODEL
+FeatureMgr.AddFeature(Utils.Joaat("ForgeModelName"), "Spoofed name", eFeatureType.InputText, "Name of the model to spoof the vehicle"):SetStringValue("ruffian")
+local previous_forge_hash = 0
+FeatureMgr.AddFeature(Utils.Joaat("ForgeModelSpoof"), "Spoof", eFeatureType.Button, "Spoof the vehicle with the specified model", function (f)
+    local spoof_model = FeatureMgr.GetFeatureString(Utils.Joaat("ForgeModelName"))
+    local spoof_hash = Utils.Joaat(spoof_model)
+    local cveh = Players.GetCPed(PLAYER.GET_PLAYER_PED(PLAYER.PLAYER_PED_ID())).CurVehicle
+    local info = CVehicleModelInfo.FromBaseModelInfo(cveh.ModelInfo)
+    previous_forge_hash = info.Model
+    info.Model = spoof_hash
+end)
+
+FeatureMgr.AddFeature(Utils.Joaat("ForgeModelUnspoof"), "Unspoof", eFeatureType.Button, "Revert the model spoof", function (f)
+    local spoof_model = FeatureMgr.GetFeatureString(Utils.Joaat("ForgeModelName"))
+    local spoof_hash = Utils.Joaat(spoof_model)
+    local cveh = Players.GetCPed(PLAYER.GET_PLAYER_PED(PLAYER.PLAYER_PED_ID())).CurVehicle
+    local info = CVehicleModelInfo.FromBaseModelInfo(cveh.ModelInfo)
+    info.Model = previous_forge_hash
+end)
+--#endregion
+
 ClickGUI.AddTab("inxlua", function ()
     ImGui.Text("Welcome to inxlua!")
     ImGui.Text("Report bugs to inxanedev on discord")
-end)
+    ImGui.BeginTabBar("#inxlua")
+    if ImGui.BeginTabItem("Vehicles") then
+        ClickGUI.BeginCustomChildWindow("Chameleon Wheel Paints")
+        ClickGUI.RenderFeature(Utils.Joaat("Next Wheel Color"))
+        ClickGUI.RenderFeature(Utils.Joaat("Last Wheel Color"))
+        ClickGUI.RenderFeature(Utils.Joaat("inxWheelColor"))
+        ClickGUI.RenderFeature(Utils.Joaat("Set Wheel Color"))
+        ImGui.Text("Current Wheel Color: " .. currentWheelColor)
+        ClickGUI.EndCustomChildWindow()
 
-ClickGUI.AddTab("Vehicles", function()
-    ClickGUI.BeginCustomChildWindow("Chameleon Wheel Paints")
-    ClickGUI.RenderFeature(Utils.Joaat("Next Wheel Color"))
-    ClickGUI.RenderFeature(Utils.Joaat("Last Wheel Color"))
-    ClickGUI.RenderFeature(Utils.Joaat("inxWheelColor"))
-    ClickGUI.RenderFeature(Utils.Joaat("Set Wheel Color"))
-    ImGui.Text("Current Wheel Color: " .. currentWheelColor)
-    ClickGUI.EndCustomChildWindow()
+        ClickGUI.BeginCustomChildWindow("Random Vehicles")
+        ClickGUI.RenderFeature(Utils.Joaat("Spawn Random Saved Vehicle"))
+        ClickGUI.EndCustomChildWindow()
 
-    ClickGUI.BeginCustomChildWindow("Random Vehicles")
-    ClickGUI.RenderFeature(Utils.Joaat("Spawn Random Saved Vehicle"))
-    ClickGUI.EndCustomChildWindow()
-end)
-
-ClickGUI.AddTab("UI", function ()
-    ClickGUI.BeginCustomChildWindow("Smaller Reticle (crosshair)")
-    ClickGUI.RenderFeature(Utils.Joaat("Smaller Reticle"))
-    ClickGUI.RenderFeature(Utils.Joaat("Reticle Size"))
-    ClickGUI.EndCustomChildWindow()
-end)
-
-ClickGUI.AddTab("Teleports", function ()
-    for _, feat in ipairs(tp_feats) do
-        ClickGUI.RenderFeature(Utils.Joaat(feat))
+        ClickGUI.BeginCustomChildWindow("Forge Model")
+        ClickGUI.RenderFeature(Utils.Joaat("ForgeModelName"))
+        ClickGUI.RenderFeature(Utils.Joaat("ForgeModelSpoof"))
+        ClickGUI.RenderFeature(Utils.Joaat("ForgeModelUnspoof"))
+        ClickGUI.EndCustomChildWindow()
+        ImGui.EndTabItem()
     end
-end)
 
-ClickGUI.AddTab("Debug", function ()
-    ClickGUI.RenderFeature(Utils.Joaat("Print hovered feature info"))
+    if ImGui.BeginTabItem("UI") then
+        ClickGUI.BeginCustomChildWindow("Smaller Reticle (crosshair)")
+        ClickGUI.RenderFeature(Utils.Joaat("Smaller Reticle"))
+        ClickGUI.RenderFeature(Utils.Joaat("Reticle Size"))
+        ClickGUI.EndCustomChildWindow()
+        ImGui.EndTabItem()
+    end
+
+    if ImGui.BeginTabItem("Teleports") then
+        for _, feat in ipairs(tp_feats) do
+            ClickGUI.RenderFeature(Utils.Joaat(feat))
+        end
+        ImGui.EndTabItem()
+    end
+
+    if ImGui.BeginTabItem("Debug") then
+        ClickGUI.RenderFeature(Utils.Joaat("Print hovered feature info"))
+        ImGui.EndTabItem()
+    end
+
+    ImGui.EndTabBar()
 end)
