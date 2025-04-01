@@ -74,6 +74,23 @@ end
 add_tp("VINEWOODGARAGE", "Vinewood Garage", 182.97068786621094, -1158.740234375, 29.445926666259766, 207.99546813964844)
 --#endregion
 
+--#region RANDOM SAVED VEHICLE
+FeatureMgr.AddFeature(Utils.Joaat("Spawn Random Saved Vehicle"), "Spawn Random Saved Vehicle", eFeatureType.Button, "Spawns a random saved .json vehicle from Cherax/Vehicles", function (f)
+    local feature = FeatureMgr.GetFeature(514776905)
+    local spawn_feature = FeatureMgr.GetFeature(521937511)
+
+    feature:SetListIndex(math.random(#feature:GetList()) - 1)
+    spawn_feature:TriggerCallback()
+end)
+--#endregion
+
+--#region PRINT FEATURE INFO
+FeatureMgr.AddFeature(Utils.Joaat("Print hovered feature info"), "Print Hovered Feature Info", eFeatureType.Button, "", function (f)
+    local feature = FeatureMgr.GetHoveredFeature()
+    print(feature:GetName(), feature:GetHash())
+end)
+--#endregion
+
 ClickGUI.AddTab("inxlua", function ()
     ImGui.Text("Welcome to inxlua!")
     ImGui.Text("Report bugs to inxanedev on discord")
@@ -86,6 +103,10 @@ ClickGUI.AddTab("Vehicles", function()
     ClickGUI.RenderFeature(Utils.Joaat("inxWheelColor"))
     ClickGUI.RenderFeature(Utils.Joaat("Set Wheel Color"))
     ImGui.Text("Current Wheel Color: " .. currentWheelColor)
+    ClickGUI.EndCustomChildWindow()
+
+    ClickGUI.BeginCustomChildWindow("Random Vehicles")
+    ClickGUI.RenderFeature(Utils.Joaat("Spawn Random Saved Vehicle"))
     ClickGUI.EndCustomChildWindow()
 end)
 
@@ -100,4 +121,8 @@ ClickGUI.AddTab("Teleports", function ()
     for _, feat in ipairs(tp_feats) do
         ClickGUI.RenderFeature(Utils.Joaat(feat))
     end
+end)
+
+ClickGUI.AddTab("Debug", function ()
+    ClickGUI.RenderFeature(Utils.Joaat("Print hovered feature info"))
 end)
