@@ -112,6 +112,62 @@ FeatureMgr.AddFeature(Utils.Joaat("ForgeModelUnspoof"), "Unspoof", eFeatureType.
 end)
 --#endregion
 
+--#region STATS
+FeatureMgr.AddFeature(Utils.Joaat("UnlockChameleonPaints"), "Unlock Chameleon Paints", eFeatureType.Button, "Unlocks all chameleon paints from GTA+", function (f)
+    STATS.STAT_SET_INT(MISC.GET_HASH_KEY("MPPLY_XMASLIVERIES0"), -1, true)
+    STATS.STAT_SET_INT(MISC.GET_HASH_KEY("MPPLY_XMASLIVERIES1"), -1, true)
+    STATS.STAT_SET_INT(MISC.GET_HASH_KEY("MPPLY_XMASLIVERIES2"), -1, true)
+    STATS.STAT_SET_INT(MISC.GET_HASH_KEY("MPPLY_XMASLIVERIES3"), -1, true)
+    STATS.STAT_SET_INT(MISC.GET_HASH_KEY("MPPLY_XMASLIVERIES4"), -1, true)
+    STATS.STAT_SET_INT(MISC.GET_HASH_KEY("MPPLY_XMASLIVERIES5"), -1, true)
+    STATS.STAT_SET_INT(MISC.GET_HASH_KEY("MPPLY_XMASLIVERIES6"), -1, true)
+    STATS.STAT_SET_INT(MISC.GET_HASH_KEY("MPPLY_XMASLIVERIES7"), -1, true)
+    STATS.STAT_SET_INT(MISC.GET_HASH_KEY("MPPLY_XMASLIVERIES8"), -1, true)
+    STATS.STAT_SET_INT(MISC.GET_HASH_KEY("MPPLY_XMASLIVERIES9"), -1, true)
+    STATS.STAT_SET_INT(MISC.GET_HASH_KEY("MPPLY_XMASLIVERIES10"), -1, true)
+    STATS.STAT_SET_INT(MISC.GET_HASH_KEY("MPPLY_XMASLIVERIES11"), -1, true)
+    STATS.STAT_SET_INT(MISC.GET_HASH_KEY("MPPLY_XMASLIVERIES12"), -1, true)
+    STATS.STAT_SET_INT(MISC.GET_HASH_KEY("MPPLY_XMASLIVERIES13"), -1, true)
+    STATS.STAT_SET_INT(MISC.GET_HASH_KEY("MPPLY_XMASLIVERIES14"), -1, true)
+    STATS.STAT_SET_INT(MISC.GET_HASH_KEY("MPPLY_XMASLIVERIES15"), -1, true)
+    STATS.STAT_SET_INT(MISC.GET_HASH_KEY("MPPLY_XMASLIVERIES16"), -1, true)
+    STATS.STAT_SET_INT(MISC.GET_HASH_KEY("MPPLY_XMAS22CPAINT0"), -1, true)
+    STATS.STAT_SET_INT(MISC.GET_HASH_KEY("MPPLY_XMAS22CPAINT1"), -1, true)
+    STATS.STAT_SET_INT(MISC.GET_HASH_KEY("MPPLY_SUM23WHEELCPAINT0"), -1, true)
+    STATS.STAT_SET_INT(MISC.GET_HASH_KEY("MPPLY_SUM23WHEELCPAINT1"), -1, true)
+    -- ScriptGlobal.SetInt(262145 + 32539, -1)
+    -- ScriptGlobal.SetInt(262145 + 32540, -1)
+    -- ScriptGlobal.SetInt(262145 + 32593, -1)
+    -- ScriptGlobal.SetInt(262145 + 32594, -1)
+    -- ScriptGlobal.SetInt(104632 + 50, 0)
+    -- ScriptGlobal.SetInt(104632 + 51, 0)
+end)
+
+FeatureMgr.AddFeature(Utils.Joaat("StatName"), "", eFeatureType.InputText, "name of the stat to edit"):SetValue("MPPLY_XMASLIVERIES0")
+
+FeatureMgr.AddFeature(Utils.Joaat("StatValueInt"), "Int value:", eFeatureType.InputInt, "Int value"):SetIntValue(-1):SetMinValue(-2147483647):SetMaxValue(2147483647)
+FeatureMgr.AddFeature(Utils.Joaat("StatValueBool"), "", eFeatureType.Toggle, "Bool value"):SetBoolValue(false)
+FeatureMgr.AddFeature(Utils.Joaat("StatValueFloat"), "Float value:", eFeatureType.InputFloat, "Float value"):SetFloatValue(420.69):SetMinValue(-math.huge):SetMaxValue(math.huge)
+FeatureMgr.AddFeature(Utils.Joaat("StatValueString"), "", eFeatureType.InputText, "String value"):SetValue("Example string")
+
+FeatureMgr.AddFeature(Utils.Joaat("SetStatInt"), "Set Int Stat", eFeatureType.Button, "Sets the int stat", function (f)
+    STATS.STAT_SET_INT(MISC.GET_HASH_KEY(FeatureMgr.GetFeatureString(Utils.Joaat("StatName"))), FeatureMgr.GetFeatureInt(Utils.Joaat("StatValueInt")), true)
+end)
+
+FeatureMgr.AddFeature(Utils.Joaat("SetStatBool"), "Set Bool Stat", eFeatureType.Button, "Sets the bool stat", function (f)
+    STATS.STAT_SET_BOOL(MISC.GET_HASH_KEY(FeatureMgr.GetFeatureString(Utils.Joaat("StatName"))), FeatureMgr.IsFeatureEnabled(Utils.Joaat("StatValueBool")), true)
+end)
+
+FeatureMgr.AddFeature(Utils.Joaat("SetStatFloat"), "Set Float Stat", eFeatureType.Button, "Sets the float stat", function (f)
+    STATS.STAT_SET_FLOAT(MISC.GET_HASH_KEY(FeatureMgr.GetFeatureString(Utils.Joaat("StatName"))), FeatureMgr.GetFeatureFloat(Utils.Joaat("StatValueFloat")), true)
+end)
+
+FeatureMgr.AddFeature(Utils.Joaat("SetStatString"), "Set String/Text Stat", eFeatureType.Button, "Sets the string stat", function (f)
+    STATS.STAT_SET_STRING(MISC.GET_HASH_KEY(FeatureMgr.GetFeatureString(Utils.Joaat("StatName"))), FeatureMgr.GetFeatureString(Utils.Joaat("StatValueString")), true)
+end)
+
+--#endregion
+
 ClickGUI.AddTab("inxlua", function ()
     ImGui.Text("Welcome to inxlua!")
     ImGui.Text("Report bugs to inxanedev on discord")
@@ -149,6 +205,35 @@ ClickGUI.AddTab("inxlua", function ()
         for _, feat in ipairs(tp_feats) do
             ClickGUI.RenderFeature(Utils.Joaat(feat))
         end
+        ImGui.EndTabItem()
+    end
+
+    if ImGui.BeginTabItem("Stats") then
+        ImGui.Spacing(20)
+        ClickGUI.RenderFeature(Utils.Joaat("UnlockChameleonPaints"))
+        ImGui.Spacing(20)
+        ClickGUI.BeginCustomChildWindow("Stat Editor")
+        ImGui.Text("Stat name:")
+        ClickGUI.RenderFeature(Utils.Joaat("StatName"))
+        ClickGUI.RenderFeature(Utils.Joaat("StatValueInt"))
+        ClickGUI.RenderFeature(Utils.Joaat("StatValueFloat"))
+        ImGui.Text("Bool value (checked is true):")
+        ImGui.SameLine()
+        ClickGUI.RenderFeature(Utils.Joaat("StatValueBool"))
+        ImGui.Text("String/text value:")
+        ClickGUI.RenderFeature(Utils.Joaat("StatValueString"))
+
+        ClickGUI.RenderFeature(Utils.Joaat("SetStatInt"))
+        ImGui.SameLine()
+        ClickGUI.RenderFeature(Utils.Joaat("SetStatFloat"))
+        ImGui.SameLine()
+        ClickGUI.RenderFeature(Utils.Joaat("SetStatBool"))
+        ImGui.SameLine()
+        ClickGUI.RenderFeature(Utils.Joaat("SetStatString"))
+
+        ClickGUI.EndCustomChildWindow()
+
+        
         ImGui.EndTabItem()
     end
 
