@@ -188,7 +188,9 @@ ClickGUI.AddTab("inxlua", function ()
     ImGui.Text("Report bugs to inxanedev on discord")
     ---@diagnostic disable-next-line: missing-parameter
     ImGui.BeginTabBar("#inxlua")
+
     if ImGui.BeginTabItem("Vehicles") then
+        ImGui.Columns(2, "", false)
         ClickGUI.BeginCustomChildWindow("Chameleon Wheel Paints")
         ClickGUI.RenderFeature(Utils.Joaat("Next Wheel Color"))
         ClickGUI.RenderFeature(Utils.Joaat("Last Wheel Color"))
@@ -196,6 +198,7 @@ ClickGUI.AddTab("inxlua", function ()
         ClickGUI.RenderFeature(Utils.Joaat("Set Wheel Color"))
         ImGui.Text("Current Wheel Color: " .. currentWheelColor)
         ClickGUI.EndCustomChildWindow()
+        ImGui.NextColumn()
 
         ClickGUI.BeginCustomChildWindow("Random Vehicles")
         ClickGUI.RenderFeature(Utils.Joaat("Spawn Random Saved Vehicle"))
@@ -206,35 +209,39 @@ ClickGUI.AddTab("inxlua", function ()
         ClickGUI.RenderFeature(Utils.Joaat("ForgeModelSpoof"))
         ClickGUI.RenderFeature(Utils.Joaat("ForgeModelUnspoof"))
         ClickGUI.EndCustomChildWindow()
+
+        ImGui.Columns()
         ImGui.EndTabItem()
     end
 
     if ImGui.BeginTabItem("UI") then
+        ImGui.Columns(2, "", false)
         ClickGUI.BeginCustomChildWindow("Smaller Reticle (crosshair)")
         ClickGUI.RenderFeature(Utils.Joaat("Smaller Reticle"))
         ClickGUI.RenderFeature(Utils.Joaat("Reticle Size"))
         ClickGUI.EndCustomChildWindow()
+        ImGui.Columns()
         ImGui.EndTabItem()
     end
 
     if ImGui.BeginTabItem("Teleports") then
-        ClickGUI.BeginCustomChildWindow("Preset teleports")
-        for _, feat in ipairs(tp_feats) do
-            ClickGUI.RenderFeature(Utils.Joaat(feat))
-        end
-        ClickGUI.EndCustomChildWindow()
+        ImGui.Columns(2, "", false)
         ClickGUI.BeginCustomChildWindow("Better Teleport")
         ImGui.TextWrapped("Cherax's Teleport to Waypoint is broken, it sometimes puts you high up into the sky.")
         ImGui.TextWrapped("The feature below first puts the camera at the waypoint coords, to load collision data.")
         ClickGUI.RenderFeature(Utils.Joaat("BetterTpToWaypoint"))
         ClickGUI.EndCustomChildWindow()
+        ImGui.NextColumn()
+        ClickGUI.BeginCustomChildWindow("Preset teleports")
+        for _, feat in ipairs(tp_feats) do
+            ClickGUI.RenderFeature(Utils.Joaat(feat))
+        end
+        ClickGUI.EndCustomChildWindow()
+        ImGui.Columns()
         ImGui.EndTabItem()
     end
 
     if ImGui.BeginTabItem("Stats") then
-        ImGui.Spacing()
-        ClickGUI.RenderFeature(Utils.Joaat("UnlockChameleonPaints"))
-        ImGui.Spacing()
         ClickGUI.BeginCustomChildWindow("Stat Editor")
         ImGui.Text("Stat name:")
         ClickGUI.RenderFeature(Utils.Joaat("StatName"))
@@ -256,6 +263,13 @@ ClickGUI.AddTab("inxlua", function ()
 
         ClickGUI.EndCustomChildWindow()
 
+        ImGui.Columns(2, "", false)
+
+        ClickGUI.BeginCustomChildWindow("Unlocks")
+        ClickGUI.RenderFeature(Utils.Joaat("UnlockChameleonPaints"))
+        ClickGUI.EndCustomChildWindow()
+
+        ImGui.Columns()
         
         ImGui.EndTabItem()
     end
