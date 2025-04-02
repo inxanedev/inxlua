@@ -216,6 +216,126 @@ end)
 --#endregion
 
 --#region VEHICLE CONFIG SAVING
+
+--#region BREATHING NEON KIT
+function RGBtoHSV(r, g, b)
+    -- Normalize RGB values to the range [0, 1]
+    r, g, b = r / 255, g / 255, b / 255
+
+    local max = math.max(r, g, b)
+    local min = math.min(r, g, b)
+    local delta = max - min
+
+    local h, s, v
+
+    -- Calculate Hue
+    if delta == 0 then
+        h = 0
+    elseif max == r then
+        h = (60 * ((g - b) / delta) + 360) % 360
+    elseif max == g then
+        h = (60 * ((b - r) / delta) + 120) % 360
+    elseif max == b then
+        h = (60 * ((r - g) / delta) + 240) % 360
+    end
+
+    -- Calculate Saturation
+    if max == 0 then
+        s = 0
+    else
+        s = delta / max
+    end
+
+    -- Calculate Value
+    v = max
+
+    -- Convert HSV to 0-255 range
+    h = math.floor((h / 360) * 255)
+    s = math.floor(s * 255)
+    v = math.floor(v * 255)
+
+    return h, s, v
+end
+
+function HSVtoRGB(h, s, v)
+    -- Normalize HSV values to the range [0, 1]
+    h, s, v = h / 255, s / 255, v / 255
+
+    local r, g, b
+
+    if s == 0 then
+        -- Achromatic (gray)
+        r, g, b = v, v, v
+    else
+        -- Chromatic case
+        local sector = math.floor(h * 6)
+        local f = h * 6 - sector
+        local p = v * (1 - s)
+        local q = v * (1 - f * s)
+        local t = v * (1 - (1 - f) * s)
+
+        if sector == 0 then
+            r, g, b = v, t, p
+        elseif sector == 1 then
+            r, g, b = q, v, p
+        elseif sector == 2 then
+            r, g, b = p, v, t
+        elseif sector == 3 then
+            r, g, b = p, q, v
+        elseif sector == 4 then
+            r, g, b = t, p, v
+        elseif sector == 5 then
+            r, g, b = v, p, q
+        end
+    end
+
+    -- Convert RGB to 0-255 range
+    r = math.floor(r * 255)
+    g = math.floor(g * 255)
+    b = math.floor(b * 255)
+
+
+    return r, g, b
+end
+
+local speed = FeatureMgr.AddFeature(Utils.Joaat("BreathingNeonSlider"), "Speed", eFeatureType.SliderInt):SetMaxValue(20):SetMinValue(1):SetValue(3)
+
+local colorfeat = FeatureMgr.GetFeatureByName("Neon Color")
+local currentAlpha = 0
+local down = false
+FeatureMgr.AddFeature(Utils.Joaat("BreathingNeon"), "Breathing Neon Kit", eFeatureType.Toggle, "Toggles the breathing neon kit effect.", function()
+	local feat = FeatureMgr.GetFeature(Utils.Joaat("BreathingNeon"))
+	while feat:IsToggled() do
+		if down then
+			currentAlpha = currentAlpha - speed:GetIntValue()
+		else
+			currentAlpha = currentAlpha + speed:GetIntValue()
+		end
+
+		if currentAlpha >= 254 and not down then
+			currentAlpha = 254
+			down = true
+		elseif currentAlpha <= 1 and down then
+			currentAlpha = 1
+			down = false
+		end
+		
+		
+
+		local r, g, b = colorfeat:GetColor()
+		local h, s, v = RGBtoHSV(r, g, b)
+		
+		local nr, ng, nb = HSVtoRGB(h, s, currentAlpha)
+		colorfeat:SetColor(nr, ng, nb)
+		colorfeat:TriggerCallback()
+
+		
+		Script.Yield()
+	end
+end, true)
+
+--#endregion
+
 local vehicle_config_dir = FileMgr.GetMenuRootPath() .. "\\VehicleConfigs"
 FileMgr.CreateDir(vehicle_config_dir)
 
@@ -366,6 +486,12 @@ ClickGUI.AddTab("inxlua", function ()
         ClickGUI.RenderFeature(Utils.Joaat("Save Vehicle Config"))
         ClickGUI.RenderFeature(Utils.Joaat("Apply Vehicle Config"))
         ClickGUI.RenderFeature(Utils.Joaat("VehicleConfigSpawnUpgraded"))
+        ClickGUI.EndCustomChildWindow()
+
+        ImGui.NextColumn()
+        ClickGUI.BeginCustomChildWindow("Breathing Neon Kit")
+        ClickGUI.RenderFeature(Utils.Joaat("BreathingNeon"))
+        ClickGUI.RenderFeature(Utils.Joaat("BreathingNeonSlider"))
         ClickGUI.EndCustomChildWindow()
 
         ImGui.Columns()
