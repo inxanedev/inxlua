@@ -85,6 +85,7 @@ FeatureMgr.AddFeature(Utils.Joaat("BetterTpToWaypoint"), "Better Teleport to Way
     else
         ENTITY.SET_ENTITY_COORDS_NO_OFFSET(PLAYER.PLAYER_PED_ID(), coords.x, coords.y + 10, z, true, true, true)
     end
+    STREAMING.CLEAR_FOCUS()
 end)
 --#endregion
 
