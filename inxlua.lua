@@ -1,12 +1,37 @@
 --#region IMPORTS
-dofile(FileMgr.GetMenuRootPath() .. "\\Lua\\natives.lua")
---#endregion
 
---#region UTILS
 local function inxNoti(text)
     GUI.AddToast("inxlua", text, 5000, eToastPos.TOP_RIGHT)
 end
 
+local function download_natives_file()
+    if FileMgr.DoesFileExist(FileMgr.GetMenuRootPath() .. "\\Lua\\natives.lua") then
+        return
+    end
+
+    inxNoti("Downloading the natives, please wait.")
+
+    local url = "https://raw.githubusercontent.com/inxanedev/inxlua/refs/heads/main/natives.lua"
+
+    local curlObject = Curl.Easy()
+    curlObject:Setopt(eCurlOption.CURLOPT_URL, url)
+    curlObject:AddHeader("User-Agent: Lua-Curl-Client")
+    curlObject:Perform()
+
+    while not curlObject:GetFinished() do end
+
+    local responseCode, responseString = curlObject:GetResponse()
+
+    FileMgr.WriteFileContent(FileMgr.GetMenuRootPath() .. "\\Lua\\natives.lua", responseString, false)
+end
+
+download_natives_file()
+
+dofile(FileMgr.GetMenuRootPath() .. "\\Lua\\natives.lua")
+
+--#endregion
+
+--#region UTILS
 local function plainTextReplace(input, pattern, replacement)
     -- Escape all magic characters in the pattern
     local escapedPattern = pattern:gsub("[%(%)%.%%%+%-%*%?%[%]%^%$]", "%%%1")
