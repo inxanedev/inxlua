@@ -4,6 +4,8 @@ local function inxNoti(text)
     GUI.AddToast("inxlua", text, 5000, eToastPos.TOP_RIGHT)
 end
 
+local NET_GAMESERVER_TRANSFER_BANK_TO_WALLET = function(charSlot, amount) return Natives.InvokeBool(0xD47A2C1BA117471D, charSlot, amount) end
+
 local function download_natives_file()
     if FileMgr.DoesFileExist(FileMgr.GetMenuRootPath() .. "\\Lua\\natives.lua") then
         return
@@ -57,6 +59,24 @@ local function tprint(tbl, indent)
       end
     end
   end
+
+local previous_global_values = {}
+local function set_global_int(id, value)
+    previous_global_values[id] = ScriptGlobal.GetInt(id)
+    ScriptGlobal.SetInt(id, value)
+end
+local function revert_global_int(id)
+    ScriptGlobal.SetInt(id, previous_global_values[id])
+    previous_global_values[id] = nil
+end
+local function set_global_bool(id, value)
+    previous_global_values[id] = ScriptGlobal.GetBool(id)
+    ScriptGlobal.SetBool(id, value)
+end
+local function revert_global_bool(id)
+    ScriptGlobal.SetBool(id, previous_global_values[id])
+    previous_global_values[id] = nil
+end
 --#endregion
 
 --#region CHAMELEON WHEEL COLORS
@@ -322,6 +342,19 @@ function HSVtoRGB(h, s, v)
 
     return r, g, b
 end
+--#endregion
+
+--#region ENABLE FESTIVE HORNS
+FeatureMgr.AddFeature(Utils.Joaat("EnableFestiveHorns"), "Enable Festive Horns", eFeatureType.Toggle, "Prevents the game from removing your festive horn modification", function (f)
+    if (f:IsToggled()) then
+        set_global_bool(262145 + 13135, true)
+        set_global_int(262145 + 2325, 1)
+    else
+        revert_global_bool(262145 + 13135)
+        revert_global_int(262145 + 2325)
+    end
+end)
+--#endregion
 
 local speed = FeatureMgr.AddFeature(Utils.Joaat("BreathingNeonSlider"), "Speed", eFeatureType.SliderInt):SetMaxValue(20):SetMinValue(1):SetValue(3)
 
@@ -517,6 +550,10 @@ ClickGUI.AddTab("inxlua", function ()
         ClickGUI.BeginCustomChildWindow("Breathing Neon Kit")
         ClickGUI.RenderFeature(Utils.Joaat("BreathingNeon"))
         ClickGUI.RenderFeature(Utils.Joaat("BreathingNeonSlider"))
+        ClickGUI.EndCustomChildWindow()
+
+        ClickGUI.BeginCustomChildWindow("Toggles")
+        ClickGUI.RenderFeature(Utils.Joaat("EnableFestiveHorns"))
         ClickGUI.EndCustomChildWindow()
 
         ImGui.Columns()
