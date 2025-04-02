@@ -72,6 +72,20 @@ local function add_tp(hash, name, x, y, z, heading)
 end
 
 add_tp("VINEWOODGARAGE", "Vinewood Garage", 182.97068786621094, -1158.740234375, 29.445926666259766, 207.99546813964844)
+
+FeatureMgr.AddFeature(Utils.Joaat("BetterTpToWaypoint"), "Better Teleport to Waypoint", eFeatureType.Button, "Teleports you to your waypoint", function ()
+    local blip = HUD.GET_FIRST_BLIP_INFO_ID(8)
+    local coords = HUD.GET_BLIP_COORDS(blip)
+    STREAMING.SET_FOCUS_POS_AND_VEL(coords.x, coords.y, coords.z, 0, 0, 0)
+    Script.Yield(1000)
+---@diagnostic disable-next-line: undefined-field
+    local _, z = GTA.GetGroundZ(coords.x, coords.y)
+    if PED.IS_PED_IN_ANY_VEHICLE(PLAYER.PLAYER_PED_ID(), true) then
+        ENTITY.SET_ENTITY_COORDS_NO_OFFSET(PED.GET_VEHICLE_PED_IS_IN(PLAYER.PLAYER_PED_ID(), true), coords.x, coords.y, z, true, true, true)
+    else
+        ENTITY.SET_ENTITY_COORDS_NO_OFFSET(PLAYER.PLAYER_PED_ID(), coords.x, coords.y + 10, z, true, true, true)
+    end
+end)
 --#endregion
 
 --#region RANDOM SAVED VEHICLE
@@ -171,6 +185,7 @@ end)
 ClickGUI.AddTab("inxlua", function ()
     ImGui.Text("Welcome to inxlua!")
     ImGui.Text("Report bugs to inxanedev on discord")
+    ---@diagnostic disable-next-line: missing-parameter
     ImGui.BeginTabBar("#inxlua")
     if ImGui.BeginTabItem("Vehicles") then
         ClickGUI.BeginCustomChildWindow("Chameleon Wheel Paints")
@@ -202,16 +217,23 @@ ClickGUI.AddTab("inxlua", function ()
     end
 
     if ImGui.BeginTabItem("Teleports") then
+        ClickGUI.BeginCustomChildWindow("Preset teleports")
         for _, feat in ipairs(tp_feats) do
             ClickGUI.RenderFeature(Utils.Joaat(feat))
         end
+        ClickGUI.EndCustomChildWindow()
+        ClickGUI.BeginCustomChildWindow("Better Teleport")
+        ImGui.TextWrapped("Cherax's Teleport to Waypoint is broken, it sometimes puts you high up into the sky.")
+        ImGui.TextWrapped("The feature below first puts the camera at the waypoint coords, to load collision data.")
+        ClickGUI.RenderFeature(Utils.Joaat("BetterTpToWaypoint"))
+        ClickGUI.EndCustomChildWindow()
         ImGui.EndTabItem()
     end
 
     if ImGui.BeginTabItem("Stats") then
-        ImGui.Spacing(20)
+        ImGui.Spacing()
         ClickGUI.RenderFeature(Utils.Joaat("UnlockChameleonPaints"))
-        ImGui.Spacing(20)
+        ImGui.Spacing()
         ClickGUI.BeginCustomChildWindow("Stat Editor")
         ImGui.Text("Stat name:")
         ClickGUI.RenderFeature(Utils.Joaat("StatName"))
