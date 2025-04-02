@@ -2,6 +2,38 @@
 dofile(FileMgr.GetMenuRootPath() .. "\\Lua\\natives.lua")
 --#endregion
 
+--#region UTILS
+local function inxNoti(text)
+    GUI.AddToast("inxlua", text, 5000, eToastPos.TOP_RIGHT)
+end
+
+local function plainTextReplace(input, pattern, replacement)
+    -- Escape all magic characters in the pattern
+    local escapedPattern = pattern:gsub("[%(%)%.%%%+%-%*%?%[%]%^%$]", "%%%1")
+    
+    -- Escape percent signs in the replacement string
+    local escapedReplacement = replacement:gsub("%%", "%%%%")
+    
+    -- Perform the replacement
+    return input:gsub(escapedPattern, escapedReplacement)
+end
+
+local function tprint(tbl, indent)
+    if not indent then indent = 0 end
+    for k, v in pairs(tbl) do
+      local formatting = string.rep("  ", indent) .. k .. ": "
+      if type(v) == "table" then
+        print(formatting)
+        tprint(v, indent+1)
+      elseif type(v) == 'boolean' then
+        print(formatting .. tostring(v))      
+      else
+        print(formatting .. v)
+      end
+    end
+  end
+--#endregion
+
 --#region CHAMELEON WHEEL COLORS
 local currentWheelColor = 0
 FeatureMgr.AddFeature(Utils.Joaat("Next Wheel Color"), "Next Wheel Color", eFeatureType.Button, "Cycles to the next wheel color", function ()
@@ -183,6 +215,122 @@ end)
 
 --#endregion
 
+--#region VEHICLE CONFIG SAVING
+local vehicle_config_dir = FileMgr.GetMenuRootPath() .. "\\VehicleConfigs"
+FileMgr.CreateDir(vehicle_config_dir)
+
+FeatureMgr.AddFeature(Utils.Joaat("Saved Vehicle Configs"), "Saved Vehicle Configs", eFeatureType.Combo, "Select a saved vehicle config")
+
+local function update_vehicle_configs()
+    local files = FileMgr.FindFiles(vehicle_config_dir, ".txt", false) or {}
+    local parsed_files = {}
+    for _, file in ipairs(files) do
+        table.insert(parsed_files, (plainTextReplace(plainTextReplace(file, vehicle_config_dir .. "\\", ""), ".txt", "")))
+    end
+    FeatureMgr.GetFeature(Utils.Joaat("Saved Vehicle Configs")):SetList(parsed_files)
+end
+
+update_vehicle_configs()
+
+FeatureMgr.AddFeature(Utils.Joaat("Config Name"), "Config name", eFeatureType.InputText, "Name for the config you want to save")
+
+FeatureMgr.AddFeature(Utils.Joaat("Save Vehicle Config"), "Save Vehicle Config", eFeatureType.Button, "Saves the modification on the current vehicle, for applying them to other cars later.", function (f)
+    local vehicle = PED.GET_VEHICLE_PED_IS_IN(PLAYER.PLAYER_PED_ID(), false)
+    if vehicle == 0 then
+        inxNoti("You're not inside a vehicle!")
+        return
+    end
+
+    local primary_color = Memory.AllocInt()
+    local secondary_color = Memory.AllocInt()
+    local pearlescent_color = Memory.AllocInt()
+    local wheel_color = Memory.AllocInt()
+
+    VEHICLE.GET_VEHICLE_COLOURS(vehicle, primary_color, secondary_color)
+    VEHICLE.GET_VEHICLE_EXTRA_COLOURS(vehicle, pearlescent_color, wheel_color)
+
+    local config = string.format("%d\n%d\n%d\n%d\n%d\n%d\n%d\n%s", 
+        VEHICLE.GET_VEHICLE_WHEEL_TYPE(vehicle),
+        VEHICLE.GET_VEHICLE_MOD(vehicle, 23),
+        VEHICLE.GET_VEHICLE_WINDOW_TINT(vehicle),
+        Memory.ReadInt(primary_color),
+        Memory.ReadInt(secondary_color),
+        Memory.ReadInt(pearlescent_color),
+        Memory.ReadInt(wheel_color),
+        tostring(VEHICLE.GET_VEHICLE_NUMBER_PLATE_TEXT(vehicle)) 
+    )
+    Memory.Free(primary_color)
+    Memory.Free(secondary_color)
+    Memory.Free(pearlescent_color)
+    Memory.Free(wheel_color)
+
+    local filename = FeatureMgr.GetFeatureString(Utils.Joaat("Config Name"))
+    if filename == "" then
+        inxNoti("You need to type a valid config name!")
+        return
+    end
+
+    local path = vehicle_config_dir .. "\\" .. filename .. ".txt"
+    FileMgr.WriteFileContent(path, config, false)
+    inxNoti("Saved vehicle config as " .. filename .. ".txt!")
+    update_vehicle_configs()
+end)
+
+FeatureMgr.AddFeature(Utils.Joaat("Refresh Vehicle Configs"), "Refresh Files", eFeatureType.Button, "Refreshes the vehicle configs", function (f)
+    update_vehicle_configs()
+end)
+
+FeatureMgr.AddFeature(Utils.Joaat("VehicleConfigSpawnUpgraded"), "Apply Performance Upgrades", eFeatureType.Toggle, "If enabled, the vehicle will have performance upgrades applied as well."):Toggle(true)
+
+FeatureMgr.AddFeature(Utils.Joaat("Apply Vehicle Config"), "Load Vehicle Config", eFeatureType.Button, "Applies your selected vehicle config to the car you're inside of.", function (f)
+    if #FeatureMgr.GetFeatureList(Utils.Joaat("Saved Vehicle Configs")) == 0 then
+        inxNoti("No saved vehicles found.")
+        return
+    end
+
+    local vehicle = PED.GET_VEHICLE_PED_IS_IN(PLAYER.PLAYER_PED_ID(), false)
+    if vehicle == 0 then
+        inxNoti("You're not inside a vehicle!")
+        return
+    end
+
+    local file = FeatureMgr.GetFeatureList(Utils.Joaat("Saved Vehicle Configs"))[FeatureMgr.GetFeature(Utils.Joaat("Saved Vehicle Configs")):GetListIndex() + 1]
+
+    file = vehicle_config_dir .. "\\" .. file .. ".txt"
+
+    local file_content = FileMgr.ReadFileContent(file)
+    local values = {}
+    for line in file_content:gmatch("[^\r\n]+") do
+        table.insert(values, line)
+    end
+
+    tprint(values)
+
+    VEHICLE.SET_VEHICLE_MOD_KIT(vehicle, 0)
+    VEHICLE.SET_VEHICLE_WHEEL_TYPE(vehicle, tonumber(values[1]))
+    VEHICLE.SET_VEHICLE_MOD(vehicle, 23, tonumber(values[2]), false)
+    VEHICLE.SET_VEHICLE_WINDOW_TINT(vehicle, tonumber(values[3]))
+    VEHICLE.SET_VEHICLE_COLOURS(vehicle, tonumber(values[4]), tonumber(values[5]))
+    VEHICLE.SET_VEHICLE_EXTRA_COLOURS(vehicle, tonumber(values[6]), tonumber(values[7]))
+
+    VEHICLE.SET_VEHICLE_NUMBER_PLATE_TEXT(veh, values[8])
+
+    local function upgrade_vehicle_mod(vehicle, mod)
+        VEHICLE.SET_VEHICLE_MOD(vehicle, mod, VEHICLE.GET_NUM_VEHICLE_MODS(vehicle, mod) - 1, false)
+    end
+
+    if FeatureMgr.IsFeatureEnabled(Utils.Joaat("VehicleConfigSpawnUpgraded")) then
+        upgrade_vehicle_mod(11) -- engine
+        upgrade_vehicle_mod(12) -- brakes
+        upgrade_vehicle_mod(13) -- transmission
+        upgrade_vehicle_mod(15) -- suspension
+        upgrade_vehicle_mod(16) -- armor
+    end
+
+    inxNoti("Applied selected vehicle config!")
+end)
+
+--#endregion
 ClickGUI.AddTab("inxlua", function ()
     ImGui.Text("Welcome to inxlua!")
     ImGui.Text("Report bugs to inxanedev on discord")
@@ -208,6 +356,16 @@ ClickGUI.AddTab("inxlua", function ()
         ClickGUI.RenderFeature(Utils.Joaat("ForgeModelName"))
         ClickGUI.RenderFeature(Utils.Joaat("ForgeModelSpoof"))
         ClickGUI.RenderFeature(Utils.Joaat("ForgeModelUnspoof"))
+        ClickGUI.EndCustomChildWindow()
+
+        ImGui.NextColumn()
+        ClickGUI.BeginCustomChildWindow("Save/Load Vehicle Configs")
+        ClickGUI.RenderFeature(Utils.Joaat("Saved Vehicle Configs"))
+        ClickGUI.RenderFeature(Utils.Joaat("Config Name"))
+        ClickGUI.RenderFeature(Utils.Joaat("Refresh Vehicle Configs"))
+        ClickGUI.RenderFeature(Utils.Joaat("Save Vehicle Config"))
+        ClickGUI.RenderFeature(Utils.Joaat("Apply Vehicle Config"))
+        ClickGUI.RenderFeature(Utils.Joaat("VehicleConfigSpawnUpgraded"))
         ClickGUI.EndCustomChildWindow()
 
         ImGui.Columns()
