@@ -400,6 +400,313 @@ end, true)
 
 --#endregion
 
+--#region SAVED VEHICLES SUBFOLDER SUPPORT
+
+local function convertPathsToStructure(paths)
+    local result = {}
+    local basePath = nil
+    
+    -- Find the common base path (everything before "Vehicles")
+    for _, path in ipairs(paths) do
+        local vehiclesPos = path:find("Vehicles")
+        if vehiclesPos then
+            local currentBase = path:sub(1, vehiclesPos + #"Vehicles" - 1)
+            if not basePath then
+                basePath = currentBase
+            else
+                -- Find the longest common prefix
+                local minLen = math.min(#basePath, #currentBase)
+                local commonLen = 0
+                for i = 1, minLen do
+                    if basePath:sub(i, i) ~= currentBase:sub(i, i) then
+                        break
+                    end
+                    commonLen = i
+                end
+                basePath = basePath:sub(1, commonLen)
+            end
+        end
+    end
+    
+    -- If no base path found, return empty table
+    if not basePath then return result end
+    
+    -- Add the "Vehicles" entry
+    result[1] = "Vehicles"
+    
+    -- Temporary storage for files and folders
+    local files = {}
+    local folders = {}
+    
+    -- Process each path
+    for _, path in pairs(paths) do
+        -- Remove the base path
+        local relativePath = path:sub(#basePath + 1)
+        -- Remove leading path separators
+        relativePath = relativePath:gsub("^[\\/]+", "")
+        
+        -- Split the path into components
+        local components = {}
+        for component in relativePath:gmatch("[^\\/]+") do
+            table.insert(components, component)
+        end
+        
+        if #components == 1 then
+            -- It's a direct file in Vehicles folder
+            table.insert(files, components[1])
+        else
+            -- It's in a subfolder
+            local folderName = components[1]
+            local filePath = {table.unpack(components, 2)}
+            
+            -- Find or create the folder
+            local folder = nil
+            for _, f in ipairs(folders) do
+                if f[1] == folderName then
+                    folder = f
+                    break
+                end
+            end
+            
+            if not folder then
+                folder = {folderName}
+                table.insert(folders, folder)
+            end
+            
+            -- Process the path within the folder
+            local currentLevel = folder
+            for i = 1, #filePath do
+                local component = filePath[i]
+                
+                if i == #filePath then
+                    -- Last component is the file
+                    table.insert(currentLevel, component)
+                else
+                    -- This is a subdirectory
+                    local found = false
+                    for j = 2, #currentLevel do
+                        if type(currentLevel[j]) == "table" and currentLevel[j][1] == component then
+                            currentLevel = currentLevel[j]
+                            found = true
+                            break
+                        end
+                    end
+                    
+                    if not found then
+                        local newTable = {component}
+                        table.insert(currentLevel, newTable)
+                        currentLevel = newTable
+                    end
+                end
+            end
+        end
+    end
+    
+    -- Sort files alphabetically
+    table.sort(files)
+    
+    -- Add files to result (starting from index 2)
+    for i, file in ipairs(files) do
+        result[i + 1] = file
+    end
+    
+    -- Sort folders alphabetically by name
+    table.sort(folders, function(a, b) return a[1] < b[1] end)
+    
+    -- Add folders to result (after files)
+    for i, folder in ipairs(folders) do
+        result[#files + i + 1] = folder
+    end
+    
+    return result
+end
+--tprint(convertPathsToStructure(FileMgr.FindFiles(FileMgr.GetMenuRootPath() .. "\\Vehicles\\", ".json", true)))
+
+-- 1: Vehicles
+-- 2: jester rr.json
+-- 3: kuruma.json
+-- 4: tbyte.json
+-- 5: terminus.json
+-- 6: vectre.json
+-- 7:
+--   1: subfolder 1
+--   2: banshee gts.json
+--   3: bmw i8.json
+-- 8:
+--   1: subfolder 2
+--   2: camaro.json
+--   3: charger.json
+--   4:
+--     1: seeyuh
+--     2: insurgent.json
+-- 9:
+--   1: subfolder 3
+--   2: coquette d5.json
+--   3: ignus.json
+
+-- local function render_structure(struct)
+--     ImGui.BeginTabBar("#Vehicles", ImGuiTabBarFlags.None)
+--     if ImGui.BeginTabItem("Vehicles") then
+--         ImGui.BeginTabBar("#a", ImGuiTabBarFlags.None)
+--         if ImGui.BeginTabItem("Vehicles") then
+--             ImGui.Button("jester rr.json")
+--             ImGui.Button("kuruma.json")
+--             ImGui.Button("tbyte.json")
+--             ImGui.Button("terminus.json")
+--             ImGui.Button("vectre.json")
+--             ImGui.EndTabItem()
+--         end
+--         if ImGui.BeginTabItem("subfolder 1") then
+--             ImGui.BeginTabBar("#b", ImGuiTabBarFlags.None)
+--             if ImGui.BeginTabItem("subfolder 1") then
+--                 ImGui.Button("banshee gts.json")
+--                 ImGui.Button("bmw i8.json")
+--                 ImGui.EndTabItem()
+--             end
+--             ImGui.EndTabBar()
+--             ImGui.EndTabItem()
+--         end
+--         if ImGui.BeginTabItem("subfolder 2") then
+--             ImGui.BeginTabBar("#c", ImGuiTabBarFlags.None)
+--             if ImGui.BeginTabItem("subfolder 2") then
+--                 ImGui.Button("camaro.json")
+--                 ImGui.Button("charger.json")
+--                 ImGui.EndTabItem()
+--             end
+--             if ImGui.BeginTabItem("seeyuh") then
+--                 ImGui.BeginTabBar("#d", ImGuiTabBarFlags.None)
+--                 if ImGui.BeginTabItem("seeyuh") then
+--                     ImGui.Button("insurgent.json")
+--                     ImGui.EndTabItem()
+--                 end
+--                 ImGui.EndTabBar()
+--                 ImGui.EndTabItem()
+--             end
+--             ImGui.EndTabBar()
+--             ImGui.EndTabItem()
+--         end
+--         if ImGui.BeginTabItem("subfolder 3") then
+--             ImGui.BeginTabBar("#e", ImGuiTabBarFlags.None)
+--             if ImGui.BeginTabItem("subfolder 3") then
+--                 ImGui.Button("coquette d5.json")
+--                 ImGui.Button("ignus.json")
+--                 ImGui.EndTabItem()
+--             end
+--             ImGui.EndTabBar()
+--             ImGui.EndTabItem()
+--         end
+        
+--         ImGui.EndTabBar()
+--         ImGui.EndTabItem()
+--     end
+--     ImGui.EndTabBar()
+-- end
+
+local function handle_button(name)
+    local parsed_name = plainTextReplace(name, ".json", "")
+    local saved_vehicles_feat = FeatureMgr.GetFeature(514776905)
+    local saved_vehicles_list = saved_vehicles_feat:GetList()
+    for i, cherax_name in ipairs(saved_vehicles_list) do
+        if cherax_name == parsed_name then
+            saved_vehicles_feat:SetListIndex(i - 1)
+        end
+    end
+    local load_vehicle_feat = FeatureMgr.GetFeature(521937511)
+    load_vehicle_feat:TriggerCallback()
+end
+
+local function render_structure(structure)
+    -- Root Vehicles tab
+    ImGui.BeginTabBar("#Vehicles", ImGuiTabBarFlags.None)
+    
+    if ImGui.BeginTabItem("Vehicles") then
+        -- First level tab bar (#a)
+        ImGui.BeginTabBar("#a", ImGuiTabBarFlags.None)
+        
+        -- Vehicles files tab
+        if ImGui.BeginTabItem("Vehicles") then
+            -- List all root files
+            for i = 2, #structure do
+                if type(structure[i]) == "string" then
+                    if ImGui.Button(structure[i]) then
+                        handle_button(structure[i])
+                    end
+                end
+            end
+            ImGui.EndTabItem()
+        end
+        
+        -- Process each folder
+        for i = 2, #structure do
+            if type(structure[i]) == "table" then
+                local folder = structure[i]
+                local folderName = folder[1]
+                
+                if ImGui.BeginTabItem(folderName) then
+                    -- Create unique tab bar ID for this folder
+                    local tabBarId = "#"..string.char(96 + i) -- #b, #c, etc.
+                    
+                    ImGui.BeginTabBar(tabBarId, ImGuiTabBarFlags.None)
+                    
+                    -- Tab for files directly in this folder
+                    if ImGui.BeginTabItem(folderName) then
+                        for j = 2, #folder do
+                            if type(folder[j]) == "string" then
+                                if ImGui.Button(folder[j]) then
+                                    handle_button(folder[j])
+                                end
+                            end
+                        end
+                        ImGui.EndTabItem()
+                    end
+                    
+                    -- Process subfolders
+                    for j = 2, #folder do
+                        if type(folder[j]) == "table" then
+                            local subfolder = folder[j]
+                            local subfolderName = subfolder[1]
+                            
+                            if ImGui.BeginTabItem(subfolderName) then
+                                -- Create unique tab bar ID for subfolder
+                                local subTabBarId = tabBarId.."_"..j -- #b_2, etc.
+                                
+                                ImGui.BeginTabBar(subTabBarId, ImGuiTabBarFlags.None)
+                                
+                                -- Tab for subfolder files
+                                if ImGui.BeginTabItem(subfolderName) then
+                                    for k = 2, #subfolder do
+                                        if type(subfolder[k]) == "string" then
+                                            if ImGui.Button(subfolder[k]) then
+                                                handle_button(subfolder[k])
+                                            end
+                                        end
+                                    end
+                                    ImGui.EndTabItem()
+                                end
+                                
+                                ImGui.EndTabBar()
+                                ImGui.EndTabItem()
+                            end
+                        end
+                    end
+                    
+                    ImGui.EndTabBar()
+                    ImGui.EndTabItem()
+                end
+            end
+        end
+        
+        ImGui.EndTabBar()
+        ImGui.EndTabItem()
+    end
+    
+    ImGui.EndTabBar()
+end
+
+local saved_vehicles = convertPathsToStructure(FileMgr.FindFiles(FileMgr.GetMenuRootPath() .. "\\Vehicles\\", ".json", true))
+
+--#endregion
+
 local vehicle_config_dir = FileMgr.GetMenuRootPath() .. "\\VehicleConfigs"
 FileMgr.CreateDir(vehicle_config_dir)
 
@@ -563,6 +870,9 @@ ClickGUI.AddTab("inxlua", function ()
         ClickGUI.EndCustomChildWindow()
 
         ImGui.Columns()
+        ClickGUI.BeginCustomChildWindow("Saved Vehicle Subfolders")
+        render_structure(saved_vehicles)
+        ClickGUI.EndCustomChildWindow()
         ImGui.EndTabItem()
     end
 
