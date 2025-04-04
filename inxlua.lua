@@ -937,13 +937,10 @@ local function create_preview_entity(filename)
     local vehicle_coords = calculate_vehicle_coords()
     STREAMING.REQUEST_MODEL(parsed["model"])
     while not STREAMING.HAS_MODEL_LOADED(parsed["model"]) do Script.Yield() end
-    local vehicle = VEHICLE.CREATE_VEHICLE(parsed["model"], vehicle_coords.x, vehicle_coords.y, vehicle_coords.z, heading, true, true, true)
-    if vehicle == 0 then
-        -- STREAMING.SET_MODEL_AS_NO_LONGER_NEEDED(parsed["model"])
-        log("failed to create vehicle")
-        return nil
+    -- local vehicle = VEHICLE.CREATE_VEHICLE(parsed["model"], vehicle_coords.x, vehicle_coords.y, vehicle_coords.z, heading, true, true, true)
 
-    end
+    local vehicle = GTA.SpawnVehicle(parsed["model"], vehicle_coords.x, vehicle_coords.y, vehicle_coords.z, heading, false, false)
+
     -- STREAMING.SET_MODEL_AS_NO_LONGER_NEEDED(parsed["model"])
     ENTITY.SET_ENTITY_AS_MISSION_ENTITY(vehicle, true, true)
 
@@ -970,6 +967,7 @@ local function create_preview_entity(filename)
 
     ENTITY.SET_ENTITY_VISIBLE(vehicle, true, false)
 
+    log("vehicle created")
     return vehicle
 end
 
@@ -986,37 +984,19 @@ end
 
 AddFeat(j("ToggleVehiclePreview"), "Toggle Vehicle Preview", eFeatureType.Toggle, "Toggles a 3D preview of the hovered Saved Vehicle.", function (f)
     while (f:IsToggled()) do
-        local hovered_feature = FeatureMgr.GetHoveredFeature()
-        if not hovered_feature then
-            if preview_entity then
-                delete_preview_entity(preview_entity)
-                preview_entity = nil
+        local hovered = FeatureMgr.GetHoveredFeature()
+        if hovered ~= nil and hovered:GetHash() == saved_vehicles_feat:GetHash() then
+            if preview_entity == nil then
+                preview_entity = create_preview_entity(saved_vehicles_feat:GetList()[saved_vehicles_feat:GetListIndex() + 1])
             end
-            goto continue
-        end
-        log(hovered_feature:GetName())
-        if hovered_feature:GetHash() ~= saved_vehicles_feat:GetHash() then
-            if preview_entity then
-                delete_preview_entity(preview_entity)
-                preview_entity = nil
-            end
-            goto continue
-        end
-
-        if not preview_entity then
-            preview_entity = create_preview_entity(saved_vehicles_feat:GetList()[saved_vehicles_feat:GetListIndex() + 1])
         else
-            preview_entity_on_tick(preview_entity)
+            if preview_entity ~= nil then
+                delete_preview_entity(preview_entity)
+                preview_entity = nil
+            end
         end
-
-        ::continue::
         Script.Yield()
     end
-    if preview_entity then
-        delete_preview_entity(preview_entity)
-        preview_entity = nil
-    end
-    
 end)
 
 --#endregion
