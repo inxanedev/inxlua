@@ -82,7 +82,7 @@ local j = Utils.Joaat
 --#region CHAMELEON WHEEL COLORS
 local currentWheelColor = 0
 FeatureMgr.AddFeature(j("Next Wheel Color"), "Next Wheel Color", eFeatureType.Button, "Cycles to the next wheel color", function ()
-    local vehicle = PED.GET_VEHICLE_PED_IS_IN(PLAYER.PLAYER_PED_ID(), 0)
+    local vehicle = PED.GET_VEHICLE_PED_IS_IN(PLAYER.PLAYER_PED_ID(), false)
     local pearlColor = Memory.AllocInt()
     local wheelColor = Memory.AllocInt()
     VEHICLE.GET_VEHICLE_EXTRA_COLOURS(vehicle, pearlColor, wheelColor)
@@ -93,7 +93,7 @@ FeatureMgr.AddFeature(j("Next Wheel Color"), "Next Wheel Color", eFeatureType.Bu
     Memory.Free(wheelColor)
 end)
 FeatureMgr.AddFeature(j("Last Wheel Color"), "Last Wheel Color", eFeatureType.Button, "Cycles back to the last wheel color", function ()
-    local vehicle = PED.GET_VEHICLE_PED_IS_IN(PLAYER.PLAYER_PED_ID(), 0)
+    local vehicle = PED.GET_VEHICLE_PED_IS_IN(PLAYER.PLAYER_PED_ID(), false)
     local pearlColor = Memory.AllocInt()
     local wheelColor = Memory.AllocInt()
     VEHICLE.GET_VEHICLE_EXTRA_COLOURS(vehicle, pearlColor, wheelColor)
@@ -105,7 +105,7 @@ FeatureMgr.AddFeature(j("Last Wheel Color"), "Last Wheel Color", eFeatureType.Bu
 end)
 
 FeatureMgr.AddFeature(j("Set Wheel Color"), "Set Wheel Color", eFeatureType.Button, "Sets the selected wheel color", function ()
-    local vehicle = PED.GET_VEHICLE_PED_IS_IN(PLAYER.PLAYER_PED_ID(), 0)
+    local vehicle = PED.GET_VEHICLE_PED_IS_IN(PLAYER.PLAYER_PED_ID(), false)
     local pearlColor = Memory.AllocInt()
     local wheelColor = Memory.AllocInt()
     VEHICLE.GET_VEHICLE_EXTRA_COLOURS(vehicle, pearlColor, wheelColor)
@@ -191,6 +191,7 @@ FeatureMgr.AddFeature(j("ForgeModelSpoof"), "Spoof", eFeatureType.Button, "Spoof
     local spoof_hash = j(spoof_model)
     local cveh = Players.GetCPed(PLAYER.GET_PLAYER_PED(PLAYER.PLAYER_PED_ID())).CurVehicle
     local info = CVehicleModelInfo.FromBaseModelInfo(cveh.ModelInfo)
+---@diagnostic disable-next-line: need-check-nil
     previous_forge_hash = info.Model
     info.Model = spoof_hash
 end)
@@ -392,6 +393,7 @@ FeatureMgr.AddFeature(j("BreathingNeon"), "Breathing Neon Kit", eFeatureType.Tog
 		local h, s, v = RGBtoHSV(r, g, b)
 		
 		local nr, ng, nb = HSVtoRGB(h, s, currentAlpha)
+---@diagnostic disable-next-line: missing-parameter
 		colorfeat:SetColor(nr, ng, nb)
 		colorfeat:TriggerCallback()
 
@@ -493,10 +495,15 @@ FeatureMgr.AddFeature(j("Apply Vehicle Config"), "Load Vehicle Config", eFeature
     tprint(values)
 
     VEHICLE.SET_VEHICLE_MOD_KIT(vehicle, 0)
+---@diagnostic disable-next-line: param-type-mismatch
     VEHICLE.SET_VEHICLE_WHEEL_TYPE(vehicle, tonumber(values[1]))
+---@diagnostic disable-next-line: param-type-mismatch
     VEHICLE.SET_VEHICLE_MOD(vehicle, 23, tonumber(values[2]), false)
+---@diagnostic disable-next-line: param-type-mismatch
     VEHICLE.SET_VEHICLE_WINDOW_TINT(vehicle, tonumber(values[3]))
+---@diagnostic disable-next-line: param-type-mismatch
     VEHICLE.SET_VEHICLE_COLOURS(vehicle, tonumber(values[4]), tonumber(values[5]))
+---@diagnostic disable-next-line: param-type-mismatch
     VEHICLE.SET_VEHICLE_EXTRA_COLOURS(vehicle, tonumber(values[6]), tonumber(values[7]))
 
     VEHICLE.SET_VEHICLE_NUMBER_PLATE_TEXT(veh, values[8])
