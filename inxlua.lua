@@ -258,7 +258,19 @@ end)
 
 --#endregion
 
---#region VEHICLE CONFIG SAVING
+--#region ENABLE FESTIVE HORNS
+
+AddFeat(j("EnableFestiveHorns"), "Enable Festive Horns", eFeatureType.Toggle, "Prevents the game from removing your festive horn modification", function (f)
+    if (f:IsToggled()) then
+        set_global_bool(262145 + 13135, true)
+        set_global_int(262145 + 2325, 1)
+    else
+        revert_global_bool(262145 + 13135)
+        revert_global_int(262145 + 2325)
+    end
+end)
+
+--#endregion
 
 --#region BREATHING NEON KIT
 function RGBtoHSV(r, g, b)
@@ -340,19 +352,6 @@ function HSVtoRGB(h, s, v)
 
     return r, g, b
 end
---#endregion
-
---#region ENABLE FESTIVE HORNS
-AddFeat(j("EnableFestiveHorns"), "Enable Festive Horns", eFeatureType.Toggle, "Prevents the game from removing your festive horn modification", function (f)
-    if (f:IsToggled()) then
-        set_global_bool(262145 + 13135, true)
-        set_global_int(262145 + 2325, 1)
-    else
-        revert_global_bool(262145 + 13135)
-        revert_global_int(262145 + 2325)
-    end
-end)
---#endregion
 
 local speed = AddFeat(j("BreathingNeonSlider"), "Speed", eFeatureType.SliderInt):SetMaxValue(20):SetMinValue(1):SetValue(3)
 
@@ -392,6 +391,8 @@ AddFeat(j("BreathingNeon"), "Breathing Neon Kit", eFeatureType.Toggle, "Toggles 
 end, true)
 
 --#endregion
+
+--#region VEHICLE CONFIG SAVING
 
 local vehicle_config_dir = FileMgr.GetMenuRootPath() .. "\\VehicleConfigs"
 FileMgr.CreateDir(vehicle_config_dir)
@@ -513,6 +514,7 @@ AddFeat(j("Apply Vehicle Config"), "Load Vehicle Config", eFeatureType.Button, "
 end)
 
 --#endregion
+
 ClickGUI.AddTab("inxlua", function ()
     ImGui.Text("Welcome to inxlua!")
     ImGui.Text("Report bugs to inxanedev on discord")
