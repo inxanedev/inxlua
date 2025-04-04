@@ -4,8 +4,6 @@ local function inxNoti(text)
     GUI.AddToast("inxlua", text, 5000, eToastPos.TOP_RIGHT)
 end
 
-local NET_GAMESERVER_TRANSFER_BANK_TO_WALLET = function(charSlot, amount) return Natives.InvokeBool(0xD47A2C1BA117471D, charSlot, amount) end
-
 local function download_natives_file()
     if FileMgr.DoesFileExist(FileMgr.GetMenuRootPath() .. "\\Lua\\natives.lua") then
         return
