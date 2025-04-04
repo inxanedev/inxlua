@@ -77,11 +77,13 @@ local function revert_global_bool(id)
 end
 
 local j = Utils.Joaat
+local RenderFeat = ClickGUI.RenderFeature
+local AddFeat = FeatureMgr.AddFeature
 --#endregion
 
 --#region CHAMELEON WHEEL COLORS
 local currentWheelColor = 0
-FeatureMgr.AddFeature(j("Next Wheel Color"), "Next Wheel Color", eFeatureType.Button, "Cycles to the next wheel color", function ()
+AddFeat(j("Next Wheel Color"), "Next Wheel Color", eFeatureType.Button, "Cycles to the next wheel color", function ()
     local vehicle = PED.GET_VEHICLE_PED_IS_IN(PLAYER.PLAYER_PED_ID(), false)
     local pearlColor = Memory.AllocInt()
     local wheelColor = Memory.AllocInt()
@@ -92,7 +94,7 @@ FeatureMgr.AddFeature(j("Next Wheel Color"), "Next Wheel Color", eFeatureType.Bu
     Memory.Free(pearlColor)
     Memory.Free(wheelColor)
 end)
-FeatureMgr.AddFeature(j("Last Wheel Color"), "Last Wheel Color", eFeatureType.Button, "Cycles back to the last wheel color", function ()
+AddFeat(j("Last Wheel Color"), "Last Wheel Color", eFeatureType.Button, "Cycles back to the last wheel color", function ()
     local vehicle = PED.GET_VEHICLE_PED_IS_IN(PLAYER.PLAYER_PED_ID(), false)
     local pearlColor = Memory.AllocInt()
     local wheelColor = Memory.AllocInt()
@@ -104,7 +106,7 @@ FeatureMgr.AddFeature(j("Last Wheel Color"), "Last Wheel Color", eFeatureType.Bu
     Memory.Free(wheelColor)
 end)
 
-FeatureMgr.AddFeature(j("Set Wheel Color"), "Set Wheel Color", eFeatureType.Button, "Sets the selected wheel color", function ()
+AddFeat(j("Set Wheel Color"), "Set Wheel Color", eFeatureType.Button, "Sets the selected wheel color", function ()
     local vehicle = PED.GET_VEHICLE_PED_IS_IN(PLAYER.PLAYER_PED_ID(), false)
     local pearlColor = Memory.AllocInt()
     local wheelColor = Memory.AllocInt()
@@ -115,14 +117,14 @@ FeatureMgr.AddFeature(j("Set Wheel Color"), "Set Wheel Color", eFeatureType.Butt
     Memory.Free(wheelColor)
 end)
 
-FeatureMgr.AddFeature(j("inxWheelColor"), "Wheel Color", eFeatureType.InputInt, "Put number of your wheel color here"):SetValue(222):SetMinValue(161):SetMaxValue(222)
+AddFeat(j("inxWheelColor"), "Wheel Color", eFeatureType.InputInt, "Put number of your wheel color here"):SetValue(222):SetMinValue(161):SetMaxValue(222)
 
 --#endregion
 
 --#region SMALLER RETICLE
 local width, height = ImGui.GetDisplaySize()
-FeatureMgr.AddFeature(j("Smaller Reticle"), "Smaller Reticle", eFeatureType.Toggle, "Makes the crosshair smaller, similar to Story Mode.")
-local size = FeatureMgr.AddFeature(j("Reticle Size"), "Reticle Size", eFeatureType.SliderInt, "Controls the size of the custom crosshair."):SetMinValue(1):SetMaxValue(10):SetValue(2)
+AddFeat(j("Smaller Reticle"), "Smaller Reticle", eFeatureType.Toggle, "Makes the crosshair smaller, similar to Story Mode.")
+local size = AddFeat(j("Reticle Size"), "Reticle Size", eFeatureType.SliderInt, "Controls the size of the custom crosshair."):SetMinValue(1):SetMaxValue(10):SetValue(2)
 
 EventMgr.RegisterHandler(eLuaEvent.ON_PRESENT, function()
 	if FeatureMgr.IsFeatureEnabled(j("Smaller Reticle")) then
@@ -143,14 +145,14 @@ local tp_feats = {}
 
 local function add_tp(hash, name, x, y, z, heading)
     table.insert(tp_feats, hash)
-    FeatureMgr.AddFeature(j(hash), name, eFeatureType.Button, "", function ()
+    AddFeat(j(hash), name, eFeatureType.Button, "", function ()
         PLAYER.START_PLAYER_TELEPORT(PLAYER.PLAYER_ID(), x, y, z, heading, true, false, true)
     end)
 end
 
 add_tp("VINEWOODGARAGE", "Vinewood Garage", 182.97068786621094, -1158.740234375, 29.445926666259766, 207.99546813964844)
 
-FeatureMgr.AddFeature(j("BetterTpToWaypoint"), "Better Teleport to Waypoint", eFeatureType.Button, "Teleports you to your waypoint", function ()
+AddFeat(j("BetterTpToWaypoint"), "Better Teleport to Waypoint", eFeatureType.Button, "Teleports you to your waypoint", function ()
     local blip = HUD.GET_FIRST_BLIP_INFO_ID(8)
     local coords = HUD.GET_BLIP_COORDS(blip)
     STREAMING.SET_FOCUS_POS_AND_VEL(coords.x, coords.y, coords.z, 0, 0, 0)
@@ -167,7 +169,7 @@ end)
 --#endregion
 
 --#region RANDOM SAVED VEHICLE
-FeatureMgr.AddFeature(j("Spawn Random Saved Vehicle"), "Spawn Random Saved Vehicle", eFeatureType.Button, "Spawns a random saved .json vehicle from Cherax/Vehicles", function (f)
+AddFeat(j("Spawn Random Saved Vehicle"), "Spawn Random Saved Vehicle", eFeatureType.Button, "Spawns a random saved .json vehicle from Cherax/Vehicles", function (f)
     local feature = FeatureMgr.GetFeature(514776905)
     local spawn_feature = FeatureMgr.GetFeature(521937511)
 
@@ -177,16 +179,16 @@ end)
 --#endregion
 
 --#region PRINT FEATURE INFO
-FeatureMgr.AddFeature(j("Print hovered feature info"), "Print Hovered Feature Info", eFeatureType.Button, "", function (f)
+AddFeat(j("Print hovered feature info"), "Print Hovered Feature Info", eFeatureType.Button, "", function (f)
     local feature = FeatureMgr.GetHoveredFeature()
     print(feature:GetName(), feature:GetHash())
 end)
 --#endregion
 
 --#region FORGE MODEL
-FeatureMgr.AddFeature(j("ForgeModelName"), "Spoofed name", eFeatureType.InputText, "Name of the model to spoof the vehicle"):SetStringValue("ruffian")
+AddFeat(j("ForgeModelName"), "Spoofed name", eFeatureType.InputText, "Name of the model to spoof the vehicle"):SetStringValue("ruffian")
 local previous_forge_hash = 0
-FeatureMgr.AddFeature(j("ForgeModelSpoof"), "Spoof", eFeatureType.Button, "Spoof the vehicle with the specified model", function (f)
+AddFeat(j("ForgeModelSpoof"), "Spoof", eFeatureType.Button, "Spoof the vehicle with the specified model", function (f)
     local spoof_model = FeatureMgr.GetFeatureString(j("ForgeModelName"))
     local spoof_hash = j(spoof_model)
     local cveh = Players.GetCPed(PLAYER.GET_PLAYER_PED(PLAYER.PLAYER_PED_ID())).CurVehicle
@@ -196,7 +198,7 @@ FeatureMgr.AddFeature(j("ForgeModelSpoof"), "Spoof", eFeatureType.Button, "Spoof
     info.Model = spoof_hash
 end)
 
-FeatureMgr.AddFeature(j("ForgeModelUnspoof"), "Unspoof", eFeatureType.Button, "Revert the model spoof", function (f)
+AddFeat(j("ForgeModelUnspoof"), "Unspoof", eFeatureType.Button, "Revert the model spoof", function (f)
     local spoof_model = FeatureMgr.GetFeatureString(j("ForgeModelName"))
     local spoof_hash = j(spoof_model)
     local cveh = Players.GetCPed(PLAYER.GET_PLAYER_PED(PLAYER.PLAYER_PED_ID())).CurVehicle
@@ -206,64 +208,51 @@ end)
 --#endregion
 
 --#region STATS
-FeatureMgr.AddFeature(j("UnlockChameleonPaints"), "Unlock Chameleon Paints", eFeatureType.Button, "Unlocks all chameleon paints from GTA+", function (f)
-    STATS.STAT_SET_INT(MISC.GET_HASH_KEY("MPPLY_XMASLIVERIES0"), -1, true)
-    STATS.STAT_SET_INT(MISC.GET_HASH_KEY("MPPLY_XMASLIVERIES1"), -1, true)
-    STATS.STAT_SET_INT(MISC.GET_HASH_KEY("MPPLY_XMASLIVERIES2"), -1, true)
-    STATS.STAT_SET_INT(MISC.GET_HASH_KEY("MPPLY_XMASLIVERIES3"), -1, true)
-    STATS.STAT_SET_INT(MISC.GET_HASH_KEY("MPPLY_XMASLIVERIES4"), -1, true)
-    STATS.STAT_SET_INT(MISC.GET_HASH_KEY("MPPLY_XMASLIVERIES5"), -1, true)
-    STATS.STAT_SET_INT(MISC.GET_HASH_KEY("MPPLY_XMASLIVERIES6"), -1, true)
-    STATS.STAT_SET_INT(MISC.GET_HASH_KEY("MPPLY_XMASLIVERIES7"), -1, true)
-    STATS.STAT_SET_INT(MISC.GET_HASH_KEY("MPPLY_XMASLIVERIES8"), -1, true)
-    STATS.STAT_SET_INT(MISC.GET_HASH_KEY("MPPLY_XMASLIVERIES9"), -1, true)
-    STATS.STAT_SET_INT(MISC.GET_HASH_KEY("MPPLY_XMASLIVERIES10"), -1, true)
-    STATS.STAT_SET_INT(MISC.GET_HASH_KEY("MPPLY_XMASLIVERIES11"), -1, true)
-    STATS.STAT_SET_INT(MISC.GET_HASH_KEY("MPPLY_XMASLIVERIES12"), -1, true)
-    STATS.STAT_SET_INT(MISC.GET_HASH_KEY("MPPLY_XMASLIVERIES13"), -1, true)
-    STATS.STAT_SET_INT(MISC.GET_HASH_KEY("MPPLY_XMASLIVERIES14"), -1, true)
-    STATS.STAT_SET_INT(MISC.GET_HASH_KEY("MPPLY_XMASLIVERIES15"), -1, true)
-    STATS.STAT_SET_INT(MISC.GET_HASH_KEY("MPPLY_XMASLIVERIES16"), -1, true)
-    STATS.STAT_SET_INT(MISC.GET_HASH_KEY("MPPLY_XMAS22CPAINT0"), -1, true)
-    STATS.STAT_SET_INT(MISC.GET_HASH_KEY("MPPLY_XMAS22CPAINT1"), -1, true)
-    STATS.STAT_SET_INT(MISC.GET_HASH_KEY("MPPLY_SUM23WHEELCPAINT0"), -1, true)
-    STATS.STAT_SET_INT(MISC.GET_HASH_KEY("MPPLY_SUM23WHEELCPAINT1"), -1, true)
-    -- ScriptGlobal.SetInt(262145 + 32539, -1)
-    -- ScriptGlobal.SetInt(262145 + 32540, -1)
-    -- ScriptGlobal.SetInt(262145 + 32593, -1)
-    -- ScriptGlobal.SetInt(262145 + 32594, -1)
-    -- ScriptGlobal.SetInt(104632 + 50, 0)
-    -- ScriptGlobal.SetInt(104632 + 51, 0)
+AddFeat(j("UnlockChameleonPaints"), "Unlock Chameleon Paints", eFeatureType.Button, "Unlocks all chameleon paints from GTA+", function (f)
+    local stat_names = {
+        "MPPLY_XMASLIVERIES0", "MPPLY_XMASLIVERIES1", "MPPLY_XMASLIVERIES2",
+        "MPPLY_XMASLIVERIES3", "MPPLY_XMASLIVERIES4", "MPPLY_XMASLIVERIES5",
+        "MPPLY_XMASLIVERIES6", "MPPLY_XMASLIVERIES7", "MPPLY_XMASLIVERIES8",
+        "MPPLY_XMASLIVERIES9", "MPPLY_XMASLIVERIES10", "MPPLY_XMASLIVERIES11",
+        "MPPLY_XMASLIVERIES12", "MPPLY_XMASLIVERIES13", "MPPLY_XMASLIVERIES14",
+        "MPPLY_XMASLIVERIES15", "MPPLY_XMASLIVERIES16",
+        "MPPLY_XMAS22CPAINT0", "MPPLY_XMAS22CPAINT1",
+        "MPPLY_SUM23WHEELCPAINT0", "MPPLY_SUM23WHEELCPAINT1"
+    }
+    
+    for _, statName in ipairs(stat_names) do
+        STATS.STAT_SET_INT(MISC.GET_HASH_KEY(statName), -1, true)
+    end
 end)
 
-FeatureMgr.AddFeature(j("OpenStatsWebsite"), "Copy Stats List URL", eFeatureType.Button, "Copies the link to a website which contains a list of stats.", function (f)
+AddFeat(j("OpenStatsWebsite"), "Copy Stats List URL", eFeatureType.Button, "Copies the link to a website which contains a list of stats.", function (f)
 ---@diagnostic disable-next-line: undefined-field
     Utils.SetClipBoardText("https://gist.githubusercontent.com/1337Nexo/945fe9724b9dd20d33e7afeabd2746dc/raw/46af3968b55677688a1bc98798adcd174e72e48d/stats.txt", "")
     inxNoti("Copied link! Open it in your browser.")
 end)
 
-FeatureMgr.AddFeature(j("StatType"), "Stat Type", eFeatureType.Combo, "Stat Type"):SetList({"int", "float", "bool", "string"})
+AddFeat(j("StatType"), "Stat Type", eFeatureType.Combo, "Stat Type"):SetList({"int", "float", "bool", "string"})
 
-FeatureMgr.AddFeature(j("StatValueInt"), "Int value:", eFeatureType.InputInt, "Int value"):SetIntValue(-1):SetMinValue(-2147483647):SetMaxValue(2147483647)
-FeatureMgr.AddFeature(j("StatValueBool"), "", eFeatureType.Toggle, "Bool value"):SetBoolValue(false)
-FeatureMgr.AddFeature(j("StatValueFloat"), "Float value:", eFeatureType.InputFloat, "Float value"):SetFloatValue(420.69):SetMinValue(-math.huge):SetMaxValue(math.huge)
-FeatureMgr.AddFeature(j("StatValueString"), "", eFeatureType.InputText, "String value"):SetValue("Example string")
+AddFeat(j("StatValueInt"), "Int value:", eFeatureType.InputInt, "Int value"):SetIntValue(-1):SetMinValue(-2147483647):SetMaxValue(2147483647)
+AddFeat(j("StatValueBool"), "", eFeatureType.Toggle, "Bool value"):SetBoolValue(false)
+AddFeat(j("StatValueFloat"), "Float value:", eFeatureType.InputFloat, "Float value"):SetFloatValue(420.69):SetMinValue(-math.huge):SetMaxValue(math.huge)
+AddFeat(j("StatValueString"), "", eFeatureType.InputText, "String value"):SetValue("Example string")
 
-FeatureMgr.AddFeature(j("StatName"), "", eFeatureType.InputText, "name of the stat to edit"):SetValue("MPPLY_XMASLIVERIES0")
+AddFeat(j("StatName"), "", eFeatureType.InputText, "name of the stat to edit"):SetValue("MPPLY_XMASLIVERIES0")
 
-FeatureMgr.AddFeature(j("SetStatInt"), "Set Int Stat", eFeatureType.Button, "Sets the int stat", function (f)
+AddFeat(j("SetStatInt"), "Set Int Stat", eFeatureType.Button, "Sets the int stat", function (f)
     STATS.STAT_SET_INT(MISC.GET_HASH_KEY(FeatureMgr.GetFeatureString(j("StatName"))), FeatureMgr.GetFeatureInt(j("StatValueInt")), true)
 end)
 
-FeatureMgr.AddFeature(j("SetStatBool"), "Set Bool Stat", eFeatureType.Button, "Sets the bool stat", function (f)
+AddFeat(j("SetStatBool"), "Set Bool Stat", eFeatureType.Button, "Sets the bool stat", function (f)
     STATS.STAT_SET_BOOL(MISC.GET_HASH_KEY(FeatureMgr.GetFeatureString(j("StatName"))), FeatureMgr.IsFeatureEnabled(j("StatValueBool")), true)
 end)
 
-FeatureMgr.AddFeature(j("SetStatFloat"), "Set Float Stat", eFeatureType.Button, "Sets the float stat", function (f)
+AddFeat(j("SetStatFloat"), "Set Float Stat", eFeatureType.Button, "Sets the float stat", function (f)
     STATS.STAT_SET_FLOAT(MISC.GET_HASH_KEY(FeatureMgr.GetFeatureString(j("StatName"))), FeatureMgr.GetFeatureFloat(j("StatValueFloat")), true)
 end)
 
-FeatureMgr.AddFeature(j("SetStatString"), "Set String/Text Stat", eFeatureType.Button, "Sets the string stat", function (f)
+AddFeat(j("SetStatString"), "Set String/Text Stat", eFeatureType.Button, "Sets the string stat", function (f)
     STATS.STAT_SET_STRING(MISC.GET_HASH_KEY(FeatureMgr.GetFeatureString(j("StatName"))), FeatureMgr.GetFeatureString(j("StatValueString")), true)
 end)
 
@@ -354,7 +343,7 @@ end
 --#endregion
 
 --#region ENABLE FESTIVE HORNS
-FeatureMgr.AddFeature(j("EnableFestiveHorns"), "Enable Festive Horns", eFeatureType.Toggle, "Prevents the game from removing your festive horn modification", function (f)
+AddFeat(j("EnableFestiveHorns"), "Enable Festive Horns", eFeatureType.Toggle, "Prevents the game from removing your festive horn modification", function (f)
     if (f:IsToggled()) then
         set_global_bool(262145 + 13135, true)
         set_global_int(262145 + 2325, 1)
@@ -365,12 +354,12 @@ FeatureMgr.AddFeature(j("EnableFestiveHorns"), "Enable Festive Horns", eFeatureT
 end)
 --#endregion
 
-local speed = FeatureMgr.AddFeature(j("BreathingNeonSlider"), "Speed", eFeatureType.SliderInt):SetMaxValue(20):SetMinValue(1):SetValue(3)
+local speed = AddFeat(j("BreathingNeonSlider"), "Speed", eFeatureType.SliderInt):SetMaxValue(20):SetMinValue(1):SetValue(3)
 
 local colorfeat = FeatureMgr.GetFeatureByName("Neon Color")
 local currentAlpha = 0
 local down = false
-FeatureMgr.AddFeature(j("BreathingNeon"), "Breathing Neon Kit", eFeatureType.Toggle, "Toggles the breathing neon kit effect.", function()
+AddFeat(j("BreathingNeon"), "Breathing Neon Kit", eFeatureType.Toggle, "Toggles the breathing neon kit effect.", function()
 	local feat = FeatureMgr.GetFeature(j("BreathingNeon"))
 	while feat:IsToggled() do
 		if down then
@@ -407,7 +396,7 @@ end, true)
 local vehicle_config_dir = FileMgr.GetMenuRootPath() .. "\\VehicleConfigs"
 FileMgr.CreateDir(vehicle_config_dir)
 
-FeatureMgr.AddFeature(j("Saved Vehicle Configs"), "Saved Vehicle Configs", eFeatureType.Combo, "Select a saved vehicle config")
+AddFeat(j("Saved Vehicle Configs"), "Saved Vehicle Configs", eFeatureType.Combo, "Select a saved vehicle config")
 
 local function update_vehicle_configs()
     local files = FileMgr.FindFiles(vehicle_config_dir, ".txt", false) or {}
@@ -420,9 +409,9 @@ end
 
 update_vehicle_configs()
 
-FeatureMgr.AddFeature(j("Config Name"), "Config name", eFeatureType.InputText, "Name for the config you want to save")
+AddFeat(j("Config Name"), "Config name", eFeatureType.InputText, "Name for the config you want to save")
 
-FeatureMgr.AddFeature(j("Save Vehicle Config"), "Save Vehicle Config", eFeatureType.Button, "Saves the modification on the current vehicle, for applying them to other cars later.", function (f)
+AddFeat(j("Save Vehicle Config"), "Save Vehicle Config", eFeatureType.Button, "Saves the modification on the current vehicle, for applying them to other cars later.", function (f)
     local vehicle = PED.GET_VEHICLE_PED_IS_IN(PLAYER.PLAYER_PED_ID(), false)
     if vehicle == 0 then
         inxNoti("You're not inside a vehicle!")
@@ -464,13 +453,13 @@ FeatureMgr.AddFeature(j("Save Vehicle Config"), "Save Vehicle Config", eFeatureT
     update_vehicle_configs()
 end)
 
-FeatureMgr.AddFeature(j("Refresh Vehicle Configs"), "Refresh Files", eFeatureType.Button, "Refreshes the vehicle configs", function (f)
+AddFeat(j("Refresh Vehicle Configs"), "Refresh Files", eFeatureType.Button, "Refreshes the vehicle configs", function (f)
     update_vehicle_configs()
 end)
 
-FeatureMgr.AddFeature(j("VehicleConfigSpawnUpgraded"), "Apply Performance Upgrades", eFeatureType.Toggle, "If enabled, the vehicle will have performance upgrades applied as well."):Toggle(true)
+AddFeat(j("VehicleConfigSpawnUpgraded"), "Apply Performance Upgrades", eFeatureType.Toggle, "If enabled, the vehicle will have performance upgrades applied as well."):Toggle(true)
 
-FeatureMgr.AddFeature(j("Apply Vehicle Config"), "Load Vehicle Config", eFeatureType.Button, "Applies your selected vehicle config to the car you're inside of.", function (f)
+AddFeat(j("Apply Vehicle Config"), "Load Vehicle Config", eFeatureType.Button, "Applies your selected vehicle config to the car you're inside of.", function (f)
     if #FeatureMgr.GetFeatureList(j("Saved Vehicle Configs")) == 0 then
         inxNoti("No saved vehicles found.")
         return
@@ -533,42 +522,42 @@ ClickGUI.AddTab("inxlua", function ()
     if ImGui.BeginTabItem("Vehicles") then
         ImGui.Columns(2, "", false)
         ClickGUI.BeginCustomChildWindow("Chameleon Wheel Paints")
-        ClickGUI.RenderFeature(j("Next Wheel Color"))
-        ClickGUI.RenderFeature(j("Last Wheel Color"))
-        ClickGUI.RenderFeature(j("inxWheelColor"))
-        ClickGUI.RenderFeature(j("Set Wheel Color"))
+        RenderFeat(j("Next Wheel Color"))
+        RenderFeat(j("Last Wheel Color"))
+        RenderFeat(j("inxWheelColor"))
+        RenderFeat(j("Set Wheel Color"))
         ImGui.Text("Current Wheel Color: " .. currentWheelColor)
         ClickGUI.EndCustomChildWindow()
         ImGui.NextColumn()
 
         ClickGUI.BeginCustomChildWindow("Random Vehicles")
-        ClickGUI.RenderFeature(j("Spawn Random Saved Vehicle"))
+        RenderFeat(j("Spawn Random Saved Vehicle"))
         ClickGUI.EndCustomChildWindow()
 
         ClickGUI.BeginCustomChildWindow("Forge Model")
-        ClickGUI.RenderFeature(j("ForgeModelName"))
-        ClickGUI.RenderFeature(j("ForgeModelSpoof"))
-        ClickGUI.RenderFeature(j("ForgeModelUnspoof"))
+        RenderFeat(j("ForgeModelName"))
+        RenderFeat(j("ForgeModelSpoof"))
+        RenderFeat(j("ForgeModelUnspoof"))
         ClickGUI.EndCustomChildWindow()
 
         ImGui.NextColumn()
         ClickGUI.BeginCustomChildWindow("Save/Load Vehicle Configs")
-        ClickGUI.RenderFeature(j("Saved Vehicle Configs"))
-        ClickGUI.RenderFeature(j("Config Name"))
-        ClickGUI.RenderFeature(j("Refresh Vehicle Configs"))
-        ClickGUI.RenderFeature(j("Save Vehicle Config"))
-        ClickGUI.RenderFeature(j("Apply Vehicle Config"))
-        ClickGUI.RenderFeature(j("VehicleConfigSpawnUpgraded"))
+        RenderFeat(j("Saved Vehicle Configs"))
+        RenderFeat(j("Config Name"))
+        RenderFeat(j("Refresh Vehicle Configs"))
+        RenderFeat(j("Save Vehicle Config"))
+        RenderFeat(j("Apply Vehicle Config"))
+        RenderFeat(j("VehicleConfigSpawnUpgraded"))
         ClickGUI.EndCustomChildWindow()
 
         ImGui.NextColumn()
         ClickGUI.BeginCustomChildWindow("Breathing Neon Kit")
-        ClickGUI.RenderFeature(j("BreathingNeon"))
-        ClickGUI.RenderFeature(j("BreathingNeonSlider"))
+        RenderFeat(j("BreathingNeon"))
+        RenderFeat(j("BreathingNeonSlider"))
         ClickGUI.EndCustomChildWindow()
 
         ClickGUI.BeginCustomChildWindow("Toggles")
-        ClickGUI.RenderFeature(j("EnableFestiveHorns"))
+        RenderFeat(j("EnableFestiveHorns"))
         ClickGUI.EndCustomChildWindow()
 
         ImGui.Columns()
@@ -578,8 +567,8 @@ ClickGUI.AddTab("inxlua", function ()
     if ImGui.BeginTabItem("UI") then
         ImGui.Columns(2, "", false)
         ClickGUI.BeginCustomChildWindow("Smaller Reticle (crosshair)")
-        ClickGUI.RenderFeature(j("Smaller Reticle"))
-        ClickGUI.RenderFeature(j("Reticle Size"))
+        RenderFeat(j("Smaller Reticle"))
+        RenderFeat(j("Reticle Size"))
         ClickGUI.EndCustomChildWindow()
         ImGui.Columns()
         ImGui.EndTabItem()
@@ -590,12 +579,12 @@ ClickGUI.AddTab("inxlua", function ()
         ClickGUI.BeginCustomChildWindow("Better Teleport")
         ImGui.TextWrapped("Cherax's Teleport to Waypoint is broken, it sometimes puts you high up into the sky.")
         ImGui.TextWrapped("The feature below first puts the camera at the waypoint coords, to load collision data.")
-        ClickGUI.RenderFeature(j("BetterTpToWaypoint"))
+        RenderFeat(j("BetterTpToWaypoint"))
         ClickGUI.EndCustomChildWindow()
         ImGui.NextColumn()
         ClickGUI.BeginCustomChildWindow("Preset teleports")
         for _, feat in ipairs(tp_feats) do
-            ClickGUI.RenderFeature(j(feat))
+            RenderFeat(j(feat))
         end
         ClickGUI.EndCustomChildWindow()
         ImGui.Columns()
@@ -605,47 +594,33 @@ ClickGUI.AddTab("inxlua", function ()
     if ImGui.BeginTabItem("Stats") then
         ImGui.Columns(2, "", false)
         ClickGUI.BeginCustomChildWindow("Stat Editor")
-        ClickGUI.RenderFeature(j("OpenStatsWebsite"))
+        RenderFeat(j("OpenStatsWebsite"))
         ImGui.Text("Stat name:")
-        ClickGUI.RenderFeature(j("StatName"))
+        RenderFeat(j("StatName"))
         local type = FeatureMgr.GetFeatureListIndex(j("StatType"))
-        ClickGUI.RenderFeature(j("StatType"))
+        RenderFeat(j("StatType"))
         if type == 0 then
-            ClickGUI.RenderFeature(j("StatValueInt"))
-            ClickGUI.RenderFeature(j("SetStatInt"))
+            RenderFeat(j("StatValueInt"))
+            RenderFeat(j("SetStatInt"))
         elseif type == 1 then
-            ClickGUI.RenderFeature(j("StatValueFloat"))
-            ClickGUI.RenderFeature(j("SetStatFloat"))
+            RenderFeat(j("StatValueFloat"))
+            RenderFeat(j("SetStatFloat"))
         elseif type == 2 then
             ImGui.Text("Bool value:")
             ImGui.SameLine()
-            ClickGUI.RenderFeature(j("StatValueBool"))
-            ClickGUI.RenderFeature(j("SetStatBool"))
+            RenderFeat(j("StatValueBool"))
+            RenderFeat(j("SetStatBool"))
         elseif type == 3 then
             ImGui.Text("String value:")
             ImGui.SameLine()
-            ClickGUI.RenderFeature(j("StatValueString"))
-            ClickGUI.RenderFeature(j("SetStatString"))
+            RenderFeat(j("StatValueString"))
+            RenderFeat(j("SetStatString"))
         end
-        -- ClickGUI.RenderFeature(j("StatValueInt"))
-        -- ClickGUI.RenderFeature(j("StatValueFloat"))
-        -- ImGui.Text("Bool value (checked is true):")
-        -- ImGui.SameLine()
-        -- ClickGUI.RenderFeature(j("StatValueBool"))
-        -- ImGui.Text("String/text value:")
-        -- ClickGUI.RenderFeature(j("StatValueString"))
 
-        -- ClickGUI.RenderFeature(j("SetStatInt"))
-        -- ImGui.SameLine()
-        -- ClickGUI.RenderFeature(j("SetStatFloat"))
-        -- ImGui.SameLine()
-        -- ClickGUI.RenderFeature(j("SetStatBool"))
-        -- ImGui.SameLine()
-        -- ClickGUI.RenderFeature(j("SetStatString"))
         ClickGUI.EndCustomChildWindow()
         ImGui.NextColumn()
         ClickGUI.BeginCustomChildWindow("Unlocks")
-        ClickGUI.RenderFeature(j("UnlockChameleonPaints"))
+        RenderFeat(j("UnlockChameleonPaints"))
         ClickGUI.EndCustomChildWindow()
 
         ImGui.Columns()
@@ -654,7 +629,7 @@ ClickGUI.AddTab("inxlua", function ()
     end
 
     if ImGui.BeginTabItem("Debug") then
-        ClickGUI.RenderFeature(j("Print hovered feature info"))
+        RenderFeat(j("Print hovered feature info"))
         ImGui.EndTabItem()
     end
 
