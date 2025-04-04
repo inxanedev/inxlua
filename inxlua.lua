@@ -235,12 +235,20 @@ FeatureMgr.AddFeature(Utils.Joaat("UnlockChameleonPaints"), "Unlock Chameleon Pa
     -- ScriptGlobal.SetInt(104632 + 51, 0)
 end)
 
-FeatureMgr.AddFeature(Utils.Joaat("StatName"), "", eFeatureType.InputText, "name of the stat to edit"):SetValue("MPPLY_XMASLIVERIES0")
+FeatureMgr.AddFeature(Utils.Joaat("OpenStatsWebsite"), "Copy Stats List URL", eFeatureType.Button, "Copies the link to a website which contains a list of stats.", function (f)
+---@diagnostic disable-next-line: undefined-field
+    Utils.SetClipBoardText("https://gist.githubusercontent.com/1337Nexo/945fe9724b9dd20d33e7afeabd2746dc/raw/46af3968b55677688a1bc98798adcd174e72e48d/stats.txt", "")
+    inxNoti("Copied link! Open it in your browser.")
+end)
+
+FeatureMgr.AddFeature(Utils.Joaat("StatType"), "Stat Type", eFeatureType.Combo, "Stat Type"):SetList({"int", "float", "bool", "string"})
 
 FeatureMgr.AddFeature(Utils.Joaat("StatValueInt"), "Int value:", eFeatureType.InputInt, "Int value"):SetIntValue(-1):SetMinValue(-2147483647):SetMaxValue(2147483647)
 FeatureMgr.AddFeature(Utils.Joaat("StatValueBool"), "", eFeatureType.Toggle, "Bool value"):SetBoolValue(false)
 FeatureMgr.AddFeature(Utils.Joaat("StatValueFloat"), "Float value:", eFeatureType.InputFloat, "Float value"):SetFloatValue(420.69):SetMinValue(-math.huge):SetMaxValue(math.huge)
 FeatureMgr.AddFeature(Utils.Joaat("StatValueString"), "", eFeatureType.InputText, "String value"):SetValue("Example string")
+
+FeatureMgr.AddFeature(Utils.Joaat("StatName"), "", eFeatureType.InputText, "name of the stat to edit"):SetValue("MPPLY_XMASLIVERIES0")
 
 FeatureMgr.AddFeature(Utils.Joaat("SetStatInt"), "Set Int Stat", eFeatureType.Button, "Sets the int stat", function (f)
     STATS.STAT_SET_INT(MISC.GET_HASH_KEY(FeatureMgr.GetFeatureString(Utils.Joaat("StatName"))), FeatureMgr.GetFeatureInt(Utils.Joaat("StatValueInt")), true)
@@ -588,29 +596,47 @@ ClickGUI.AddTab("inxlua", function ()
     end
 
     if ImGui.BeginTabItem("Stats") then
+        ImGui.Columns(2, "", false)
         ClickGUI.BeginCustomChildWindow("Stat Editor")
+        ClickGUI.RenderFeature(Utils.Joaat("OpenStatsWebsite"))
         ImGui.Text("Stat name:")
         ClickGUI.RenderFeature(Utils.Joaat("StatName"))
-        ClickGUI.RenderFeature(Utils.Joaat("StatValueInt"))
-        ClickGUI.RenderFeature(Utils.Joaat("StatValueFloat"))
-        ImGui.Text("Bool value (checked is true):")
-        ImGui.SameLine()
-        ClickGUI.RenderFeature(Utils.Joaat("StatValueBool"))
-        ImGui.Text("String/text value:")
-        ClickGUI.RenderFeature(Utils.Joaat("StatValueString"))
+        local type = FeatureMgr.GetFeatureListIndex(Utils.Joaat("StatType"))
+        ClickGUI.RenderFeature(Utils.Joaat("StatType"))
+        if type == 0 then
+            ClickGUI.RenderFeature(Utils.Joaat("StatValueInt"))
+            ClickGUI.RenderFeature(Utils.Joaat("SetStatInt"))
+        elseif type == 1 then
+            ClickGUI.RenderFeature(Utils.Joaat("StatValueFloat"))
+            ClickGUI.RenderFeature(Utils.Joaat("SetStatFloat"))
+        elseif type == 2 then
+            ImGui.Text("Bool value:")
+            ImGui.SameLine()
+            ClickGUI.RenderFeature(Utils.Joaat("StatValueBool"))
+            ClickGUI.RenderFeature(Utils.Joaat("SetStatBool"))
+        elseif type == 3 then
+            ImGui.Text("String value:")
+            ImGui.SameLine()
+            ClickGUI.RenderFeature(Utils.Joaat("StatValueString"))
+            ClickGUI.RenderFeature(Utils.Joaat("SetStatString"))
+        end
+        -- ClickGUI.RenderFeature(Utils.Joaat("StatValueInt"))
+        -- ClickGUI.RenderFeature(Utils.Joaat("StatValueFloat"))
+        -- ImGui.Text("Bool value (checked is true):")
+        -- ImGui.SameLine()
+        -- ClickGUI.RenderFeature(Utils.Joaat("StatValueBool"))
+        -- ImGui.Text("String/text value:")
+        -- ClickGUI.RenderFeature(Utils.Joaat("StatValueString"))
 
-        ClickGUI.RenderFeature(Utils.Joaat("SetStatInt"))
-        ImGui.SameLine()
-        ClickGUI.RenderFeature(Utils.Joaat("SetStatFloat"))
-        ImGui.SameLine()
-        ClickGUI.RenderFeature(Utils.Joaat("SetStatBool"))
-        ImGui.SameLine()
-        ClickGUI.RenderFeature(Utils.Joaat("SetStatString"))
-
+        -- ClickGUI.RenderFeature(Utils.Joaat("SetStatInt"))
+        -- ImGui.SameLine()
+        -- ClickGUI.RenderFeature(Utils.Joaat("SetStatFloat"))
+        -- ImGui.SameLine()
+        -- ClickGUI.RenderFeature(Utils.Joaat("SetStatBool"))
+        -- ImGui.SameLine()
+        -- ClickGUI.RenderFeature(Utils.Joaat("SetStatString"))
         ClickGUI.EndCustomChildWindow()
-
-        ImGui.Columns(2, "", false)
-
+        ImGui.NextColumn()
         ClickGUI.BeginCustomChildWindow("Unlocks")
         ClickGUI.RenderFeature(Utils.Joaat("UnlockChameleonPaints"))
         ClickGUI.EndCustomChildWindow()
