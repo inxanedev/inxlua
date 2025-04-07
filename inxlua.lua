@@ -55,7 +55,7 @@ local function auto_update()
     local latest_version = tonumber(trim(download_string("https://raw.githubusercontent.com/inxanedev/inxlua/refs/heads/main/inx/version.txt")))
     local current_version = tonumber(trim(FileMgr.ReadFileContent(version_path)))
 
-    if current_version >= latest_version then
+    if current_version < latest_version then
         local script_src = download_string("https://raw.githubusercontent.com/inxanedev/inxlua/refs/heads/main/inxlua.lua")
         FileMgr.WriteFileContent(FileMgr.GetMenuRootPath() .. "\\Lua\\inxlua.lua", script_src, false)
         return true
