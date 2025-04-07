@@ -726,3 +726,7 @@ ClickGUI.AddTab("inxlua", function ()
 
     ImGui.EndTabBar()
 end)
+
+HUD.BEGIN_TEXT_COMMAND_THEFEED_POST("STRING")
+HUD.ADD_TEXT_COMPONENT_SUBSTRING_PLAYER_NAME("inxlua loaded.\nfuck caldwell and his shit ass script &lt;3\nelf the goat")
+HUD.END_TEXT_COMMAND_THEFEED_POST_TICKER(false, false)
