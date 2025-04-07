@@ -1,6 +1,4 @@
 # how to install
-put every file in Documents/Cherax/Lua  
-BOTH files, natives.lua and inxlua.lua  
-then just run the script named inxlua.lua  
+download inxlua.lua and put it inside Documents\Cherax\Lua  
 
-DO NOT run  the natives.lua file
+then run the script from the Lua Editor tab in Cherax
