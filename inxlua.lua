@@ -2,6 +2,10 @@
 
 DISABLE_AUTOUPDATE = false
 
+if not FileMgr.DoesFileExist(FileMgr.GetMenuRootPath() .. "\\Lua\\inx") then
+    FileMgr.CreateDir(FileMgr.GetMenuRootPath() .. "\\Lua\\inx")
+end
+
 local function inxNoti(text)
     GUI.AddToast("inxlua", text, 5000, eToastPos.TOP_RIGHT)
 end
