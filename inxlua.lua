@@ -579,18 +579,20 @@ AddFeat(j("Apply Vehicle Config"), "Load Vehicle Config", eFeatureType.Button, "
 ---@diagnostic disable-next-line: param-type-mismatch
     VEHICLE.SET_VEHICLE_EXTRA_COLOURS(vehicle, tonumber(values[6]), tonumber(values[7]))
 
-    VEHICLE.SET_VEHICLE_NUMBER_PLATE_TEXT(veh, values[8])
+    VEHICLE.SET_VEHICLE_NUMBER_PLATE_TEXT(vehicle, values[8])
 
     local function upgrade_vehicle_mod(vehicle, mod)
         VEHICLE.SET_VEHICLE_MOD(vehicle, mod, VEHICLE.GET_NUM_VEHICLE_MODS(vehicle, mod) - 1, false)
     end
 
     if FeatureMgr.IsFeatureEnabled(j("VehicleConfigSpawnUpgraded")) then
-        upgrade_vehicle_mod(11) -- engine
-        upgrade_vehicle_mod(12) -- brakes
-        upgrade_vehicle_mod(13) -- transmission
-        upgrade_vehicle_mod(15) -- suspension
-        upgrade_vehicle_mod(16) -- armor
+        upgrade_vehicle_mod(vehicle, 11) -- engine
+        upgrade_vehicle_mod(vehicle, 12) -- brakes
+        upgrade_vehicle_mod(vehicle, 13) -- transmission
+        upgrade_vehicle_mod(vehicle, 15) -- suspension
+        upgrade_vehicle_mod(vehicle, 16) -- armor
+        upgrade_vehicle_mod(vehicle, 18) -- turbo/hsw
+        upgrade_vehicle_mod(vehicle, 36) -- for hsw cars this is the HSW performance upgrade
     end
 
     inxNoti("Applied selected vehicle config!")
