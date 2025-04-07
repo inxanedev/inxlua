@@ -303,6 +303,45 @@ AddFeat(j("SetStatString"), "Set String/Text Stat", eFeatureType.Button, "Sets t
     STATS.STAT_SET_STRING(MISC.GET_HASH_KEY(FeatureMgr.GetFeatureString(j("StatName"))), FeatureMgr.GetFeatureString(j("StatValueString")), true)
 end)
 
+local function get_string_stat(hash)
+    return true, STATS.STAT_GET_STRING(hash, -1)
+end
+
+local previous_read_stat = nil
+local previous_read_stat_value = nil
+local previous_read_stat_type = nil
+
+local function read_stat(index)
+    local func
+
+    if index == 0 then
+        func = Stats.GetInt
+    elseif index == 1 then
+        func = Stats.GetFloat
+    elseif index == 2 then
+        func = Stats.GetBool
+    elseif index == 3 then
+        func = get_string_stat
+    end
+
+    local stat_hash = j(FeatureMgr.GetFeatureString(j("StatName")))
+    if previous_read_stat ~= nil and previous_read_stat_type ~= nil and previous_read_stat == stat_hash and previous_read_stat_type == index then
+        return previous_read_stat_value
+    else
+        previous_read_stat = stat_hash
+        previous_read_stat_type = index
+    end
+
+    print("reading stat")
+    local success, value = func(stat_hash)
+    if success then
+        previous_read_stat_value = value
+        return tostring(value)
+    end
+    previous_read_stat_value = "FAILED TO READ"
+    return "FAILED TO READ"
+end
+
 --#endregion
 
 --#region VEHICLE CONFIG SAVING
@@ -647,17 +686,21 @@ ClickGUI.AddTab("inxlua", function ()
         local type = FeatureMgr.GetFeatureListIndex(j("StatType"))
         RenderFeat(j("StatType"))
         if type == 0 then
+            ImGui.Text("Current value: " .. read_stat(0))
             RenderFeat(j("StatValueInt"))
             RenderFeat(j("SetStatInt"))
         elseif type == 1 then
+            ImGui.Text("Current value: " .. read_stat(1))
             RenderFeat(j("StatValueFloat"))
             RenderFeat(j("SetStatFloat"))
         elseif type == 2 then
+            ImGui.Text("Current value: " .. read_stat(2))
             ImGui.Text("Bool value:")
             ImGui.SameLine()
             RenderFeat(j("StatValueBool"))
             RenderFeat(j("SetStatBool"))
         elseif type == 3 then
+            ImGui.Text("Current value: " .. read_stat(3))
             ImGui.Text("String value:")
             ImGui.SameLine()
             RenderFeat(j("StatValueString"))
