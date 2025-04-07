@@ -330,7 +330,6 @@ local function read_stat(index)
         previous_read_stat_type = index
     end
 
-    print("reading stat")
     local success, value = func(stat_hash)
     if success then
         previous_read_stat_value = value
