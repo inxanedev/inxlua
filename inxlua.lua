@@ -283,7 +283,7 @@ AddFeat(j("StatValueBool"), "", eFeatureType.Toggle, "Bool value"):SetBoolValue(
 AddFeat(j("StatValueFloat"), "Float value:", eFeatureType.InputFloat, "Float value"):SetFloatValue(420.69):SetMinValue(-math.huge):SetMaxValue(math.huge)
 AddFeat(j("StatValueString"), "", eFeatureType.InputText, "String value"):SetValue("Example string")
 
-AddFeat(j("StatName"), "", eFeatureType.InputText, "name of the stat to edit"):SetValue("MPPLY_XMASLIVERIES0")
+AddFeat(j("StatName"), "", eFeatureType.InputText, "name of the stat to edit"):SetValue("MP0_KILLS")
 
 AddFeat(j("SetStatInt"), "Set Int Stat", eFeatureType.Button, "Sets the int stat", function (f)
     STATS.STAT_SET_INT(MISC.GET_HASH_KEY(FeatureMgr.GetFeatureString(j("StatName"))), FeatureMgr.GetFeatureInt(j("StatValueInt")), true)
