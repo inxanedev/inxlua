@@ -6,12 +6,16 @@ end
 
 local function download_natives_file()
     if FileMgr.DoesFileExist(FileMgr.GetMenuRootPath() .. "\\Lua\\natives.lua") then
+        FileMgr.DeleteFile(FileMgr.GetMenuRootPath() .. "\\Lua\\natives.lua")
+    end
+
+    if FileMgr.DoesFileExist(FileMgr.GetMenuRootPath() .. "\\Lua\\inx\\natives.lua") then
         return
     end
 
     inxNoti("Downloading the natives, please wait.")
 
-    local url = "https://raw.githubusercontent.com/inxanedev/inxlua/refs/heads/main/natives.lua"
+    local url = "https://raw.githubusercontent.com/inxanedev/inxlua/refs/heads/main/inx/natives.lua"
 
     local curlObject = Curl.Easy()
     curlObject:Setopt(eCurlOption.CURLOPT_URL, url)
@@ -22,12 +26,12 @@ local function download_natives_file()
 
     local responseCode, responseString = curlObject:GetResponse()
 
-    FileMgr.WriteFileContent(FileMgr.GetMenuRootPath() .. "\\Lua\\natives.lua", responseString, false)
+    FileMgr.WriteFileContent(FileMgr.GetMenuRootPath() .. "\\Lua\\inx\\natives.lua", responseString, false)
 end
 
 download_natives_file()
 
-dofile(FileMgr.GetMenuRootPath() .. "\\Lua\\natives.lua")
+dofile(FileMgr.GetMenuRootPath() .. "\\Lua\\inx\\natives.lua")
 
 --#endregion
 
