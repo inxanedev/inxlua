@@ -1,7 +1,25 @@
 --#region IMPORTS
 
+DISABLE_AUTOUPDATE = false
+
 local function inxNoti(text)
     GUI.AddToast("inxlua", text, 5000, eToastPos.TOP_RIGHT)
+end
+
+local function trim(s)
+    return (s:gsub("^%s*(.-)%s*$", "%1"))
+end
+
+local function download_string(url)
+    local curlObject = Curl.Easy()
+    curlObject:Setopt(eCurlOption.CURLOPT_URL, url)
+    curlObject:AddHeader("User-Agent: Lua-Curl-Client")
+    curlObject:Perform()
+
+    while not curlObject:GetFinished() do end
+
+    local _, resp = curlObject:GetResponse()
+    return resp
 end
 
 local function download_natives_file()
@@ -17,14 +35,7 @@ local function download_natives_file()
 
     local url = "https://raw.githubusercontent.com/inxanedev/inxlua/refs/heads/main/inx/natives.lua"
 
-    local curlObject = Curl.Easy()
-    curlObject:Setopt(eCurlOption.CURLOPT_URL, url)
-    curlObject:AddHeader("User-Agent: Lua-Curl-Client")
-    curlObject:Perform()
-
-    while not curlObject:GetFinished() do end
-
-    local responseCode, responseString = curlObject:GetResponse()
+    local responseString = download_string(url)
 
     FileMgr.WriteFileContent(FileMgr.GetMenuRootPath() .. "\\Lua\\inx\\natives.lua", responseString, false)
 end
@@ -32,6 +43,31 @@ end
 download_natives_file()
 
 dofile(FileMgr.GetMenuRootPath() .. "\\Lua\\inx\\natives.lua")
+
+local function auto_update()
+    if DISABLE_AUTOUPDATE then return end
+
+    local version_path = FileMgr.GetMenuRootPath() .. "\\inx\\version.txt"
+    if not FileMgr.DoesFileExist(version_path) then
+        FileMgr.WriteFileContent(version_path, "0", false)
+    end
+
+    local latest_version = tonumber(trim(download_string("https://raw.githubusercontent.com/inxanedev/inxlua/refs/heads/main/inx/version.txt")))
+    local current_version = tonumber(trim(FileMgr.ReadFileContent(version_path)))
+
+    if current_version >= latest_version then
+        local script_src = download_string("https://raw.githubusercontent.com/inxanedev/inxlua/refs/heads/main/inxlua.lua")
+        FileMgr.WriteFileContent(FileMgr.GetMenuRootPath() .. "\\Lua\\inxlua.lua", script_src, false)
+        return true
+    end
+
+    return false
+end
+
+if auto_update() then
+    inxNoti("Script updated. Please run the script again!")
+    SetShouldUnload()
+end
 
 --#endregion
 
