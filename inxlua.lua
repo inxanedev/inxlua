@@ -47,7 +47,7 @@ dofile(FileMgr.GetMenuRootPath() .. "\\Lua\\inx\\natives.lua")
 local function auto_update()
     if DISABLE_AUTOUPDATE then return end
 
-    local version_path = FileMgr.GetMenuRootPath() .. "Lua\\inx\\version.txt"
+    local version_path = FileMgr.GetMenuRootPath() .. "\\Lua\\inx\\version.txt"
     if not FileMgr.DoesFileExist(version_path) then
         FileMgr.WriteFileContent(version_path, "0", false)
     end
