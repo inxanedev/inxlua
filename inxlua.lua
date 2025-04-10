@@ -301,8 +301,6 @@ end
 
 --#endregion
 
---#region VEHICLE CONFIG SAVING
-
 --#region BREATHING NEON KIT
 function RGBtoHSV(r, g, b)
     -- Normalize RGB values to the range [0, 1]
@@ -383,20 +381,6 @@ function HSVtoRGB(h, s, v)
 
     return r, g, b
 end
---#endregion
-
---#region ENABLE FESTIVE HORNS
-AddFeat(j("EnableFestiveHorns"), "Enable Festive Horns", eFeatureType.Toggle, "Prevents the game from removing your festive horn modification", function (f)
-    if (f:IsToggled()) then
-        set_global_bool(262145 + 13135, true)
-        set_global_int(262145 + 2325, 1)
-    else
-        revert_global_bool(262145 + 13135)
-        revert_global_int(262145 + 2325)
-    end
-end)
---#endregion
-
 local speed = AddFeat(j("BreathingNeonSlider"), "Speed", eFeatureType.SliderInt):SetMaxValue(20):SetMinValue(1):SetValue(3)
 
 local colorfeat = FeatureMgr.GetFeatureByName("Neon Color")
@@ -435,6 +419,20 @@ AddFeat(j("BreathingNeon"), "Breathing Neon Kit", eFeatureType.Toggle, "Toggles 
 end, true)
 
 --#endregion
+
+--#region ENABLE FESTIVE HORNS
+AddFeat(j("EnableFestiveHorns"), "Enable Festive Horns", eFeatureType.Toggle, "Prevents the game from removing your festive horn modification", function (f)
+    if (f:IsToggled()) then
+        set_global_bool(262145 + 13135, true)
+        set_global_int(262145 + 2325, 1)
+    else
+        revert_global_bool(262145 + 13135)
+        revert_global_int(262145 + 2325)
+    end
+end)
+--#endregion
+
+--#region VEHICLE CONFIG SAVING
 
 local vehicle_config_dir = FileMgr.GetMenuRootPath() .. "\\VehicleConfigs"
 FileMgr.CreateDir(vehicle_config_dir)
