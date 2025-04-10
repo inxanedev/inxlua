@@ -213,6 +213,12 @@ end)
 --#endregion
 
 --#region STATS
+
+local function get_character_slot()
+    local _, slot = Stats.GetInt(j("MPPLY_LAST_MP_CHAR"))
+    return slot
+end
+
 AddFeat(j("UnlockChameleonPaints"), "Unlock Chameleon Paints", eFeatureType.Button, "Unlocks all chameleon paints from GTA+", function (f)
     local stat_names = {
         "MPPLY_XMASLIVERIES0", "MPPLY_XMASLIVERIES1", "MPPLY_XMASLIVERIES2",
@@ -236,7 +242,7 @@ AddFeat(j("OpenStatsWebsite"), "Copy Stats List URL", eFeatureType.Button, "Copi
     inxNoti("Copied link! Open it in your browser.")
 end)
 
-AddFeat(j("StatType"), "Stat Type", eFeatureType.Combo, "Stat Type"):SetList({"int", "float", "bool", "string"})
+AddFeat(j("StatType"), "Stat Type", eFeatureType.Combo, "Stat Type"):SetList({"int", "float", "bool", "string", "packed bool (single)"})
 
 AddFeat(j("StatValueInt"), "Int value:", eFeatureType.InputInt, "Int value"):SetIntValue(-1):SetMinValue(-2147483647):SetMaxValue(2147483647)
 AddFeat(j("StatValueBool"), "", eFeatureType.Toggle, "Bool value"):SetBoolValue(false)
@@ -259,6 +265,27 @@ end)
 
 AddFeat(j("SetStatString"), "Set String/Text Stat", eFeatureType.Button, "Sets the string stat", function (f)
     STATS.STAT_SET_STRING(MISC.GET_HASH_KEY(FeatureMgr.GetFeatureString(j("StatName"))), FeatureMgr.GetFeatureString(j("StatValueString")), true)
+end)
+
+AddFeat(j("PackedBoolSingleIndex"), "Packed Bool Index", eFeatureType.InputInt, "Index of the packed bool"):SetMinValue(-2147483647):SetMaxValue(2147483647)
+
+AddFeat(j("PackedBoolSingleValue"), "Value (checked is true)", eFeatureType.Toggle, "Value of the packed bool you want to edit")
+
+AddFeat(j("SetPackedBoolStatSingle"), "Set Packed Bool", eFeatureType.Button, "Sets the selected packed bool stat to the specified value.", function (f)
+    STATS.SET_PACKED_STAT_BOOL_CODE(FeatureMgr.GetFeatureInt(j("PackedBoolSingleIndex")), FeatureMgr.IsFeatureEnabled(j("PackedBoolSingleValue")), get_character_slot())
+end)
+
+AddFeat(j("PackedBoolRangeValue"), "Value (checked is true)", eFeatureType.Toggle, "Value for the ranged packed bool")
+
+AddFeat(j("PackedBoolRangeIndexStart"), "Packed Bool Start Index", eFeatureType.InputInt, "Start index of the ranged packed bool"):SetMinValue(-2147483647):SetMaxValue(2147483647)
+AddFeat(j("PackedBoolRangeIndexEnd"), "Packed Bool End Index", eFeatureType.InputInt, "End index of the ranged packed bool"):SetMinValue(-2147483647):SetMaxValue(2147483647)
+
+AddFeat(j("SetPackedBoolStatRange"), "Set Packed Bool Range", eFeatureType.Button, "Sets the selected packed bool range from start to end, to the specified value.", function (f)
+    --STATS.SET_PACKED_STAT_BOOL_CODE(FeatureMgr.GetFeatureInt(j("PackedBoolSingleIndex")), FeatureMgr.IsFeatureEnabled(j("PackedBoolSingleValue")), get_character_slot())
+
+    for i = FeatureMgr.GetFeatureInt(j("PackedBoolRangeIndexStart")), FeatureMgr.GetFeatureInt(j("PackedBoolRangeIndexEnd")), 1 do
+        STATS.SET_PACKED_STAT_BOOL_CODE(i, FeatureMgr.IsFeatureEnabled(j("PackedBoolRangeValue")), get_character_slot())
+    end
 end)
 
 local function get_string_stat(hash)
@@ -659,9 +686,22 @@ ClickGUI.AddTab("inxlua", function ()
         end
 
         ClickGUI.EndCustomChildWindow()
-        ImGui.NextColumn()
         ClickGUI.BeginCustomChildWindow("Unlocks")
         RenderFeat(j("UnlockChameleonPaints"))
+        ClickGUI.EndCustomChildWindow()
+        ImGui.NextColumn()
+
+        ClickGUI.BeginCustomChildWindow("Packed Bool Stat Editor (single)")
+        RenderFeat(j("PackedBoolSingleIndex"))
+        RenderFeat(j("PackedBoolSingleValue"))
+        RenderFeat(j("SetPackedBoolStatSingle"))
+        ClickGUI.EndCustomChildWindow()
+
+        ClickGUI.BeginCustomChildWindow("Packed Bool Stat Editor (range)")
+        RenderFeat(j("PackedBoolRangeIndexStart"))
+        RenderFeat(j("PackedBoolRangeIndexEnd"))
+        RenderFeat(j("PackedBoolRangeValue"))
+        RenderFeat(j("SetPackedBoolStatRange"))
         ClickGUI.EndCustomChildWindow()
 
         ImGui.Columns()
