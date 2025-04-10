@@ -606,14 +606,18 @@ ClickGUI.AddTab("inxlua", function ()
 
     if ImGui.BeginTabItem("Vehicles") then
         ImGui.Columns(2, "", false)
-        ClickGUI.BeginCustomChildWindow("Chameleon Wheel Paints")
-        RenderFeat(j("Next Wheel Color"))
-        RenderFeat(j("Last Wheel Color"))
-        RenderFeat(j("inxWheelColor"))
-        RenderFeat(j("Set Wheel Color"))
-        ImGui.Text("Current Wheel Color: " .. currentWheelColor)
+
+        ClickGUI.BeginCustomChildWindow("Save/Load Vehicle Configs")
+        RenderFeat(j("Saved Vehicle Configs"))
+        RenderFeat(j("Config Name"))
+        RenderFeat(j("Refresh Vehicle Configs"))
+        RenderFeat(j("Save Vehicle Config"))
+        RenderFeat(j("Apply Vehicle Config"))
+        RenderFeat(j("VehicleConfigSpawnUpgraded"))
         ClickGUI.EndCustomChildWindow()
+
         ImGui.NextColumn()
+        
 
         ClickGUI.BeginCustomChildWindow("Random Vehicles")
         RenderFeat(j("Spawn Random Saved Vehicle"))
@@ -625,17 +629,6 @@ ClickGUI.AddTab("inxlua", function ()
         RenderFeat(j("ForgeModelUnspoof"))
         ClickGUI.EndCustomChildWindow()
 
-        ImGui.NextColumn()
-        ClickGUI.BeginCustomChildWindow("Save/Load Vehicle Configs")
-        RenderFeat(j("Saved Vehicle Configs"))
-        RenderFeat(j("Config Name"))
-        RenderFeat(j("Refresh Vehicle Configs"))
-        RenderFeat(j("Save Vehicle Config"))
-        RenderFeat(j("Apply Vehicle Config"))
-        RenderFeat(j("VehicleConfigSpawnUpgraded"))
-        ClickGUI.EndCustomChildWindow()
-
-        ImGui.NextColumn()
         ClickGUI.BeginCustomChildWindow("Breathing Neon Kit")
         RenderFeat(j("BreathingNeon"))
         RenderFeat(j("BreathingNeonSlider"))
@@ -644,7 +637,6 @@ ClickGUI.AddTab("inxlua", function ()
         ClickGUI.BeginCustomChildWindow("Toggles")
         RenderFeat(j("EnableFestiveHorns"))
         ClickGUI.EndCustomChildWindow()
-
         ImGui.Columns()
         ImGui.EndTabItem()
     end
