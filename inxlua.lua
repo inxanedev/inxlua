@@ -126,46 +126,6 @@ local RenderFeat = ClickGUI.RenderFeature
 local AddFeat = FeatureMgr.AddFeature
 --#endregion
 
---#region CHAMELEON WHEEL COLORS
-local currentWheelColor = 0
-AddFeat(j("Next Wheel Color"), "Next Wheel Color", eFeatureType.Button, "Cycles to the next wheel color", function ()
-    local vehicle = PED.GET_VEHICLE_PED_IS_IN(PLAYER.PLAYER_PED_ID(), false)
-    local pearlColor = Memory.AllocInt()
-    local wheelColor = Memory.AllocInt()
-    VEHICLE.GET_VEHICLE_EXTRA_COLOURS(vehicle, pearlColor, wheelColor)
-    Memory.WriteInt(wheelColor, Memory.ReadInt(wheelColor) + 1)
-    VEHICLE.SET_VEHICLE_EXTRA_COLOURS(vehicle, Memory.ReadInt(pearlColor), Memory.ReadInt(wheelColor))
-    currentWheelColor = Memory.ReadInt(wheelColor)
-    Memory.Free(pearlColor)
-    Memory.Free(wheelColor)
-end)
-AddFeat(j("Last Wheel Color"), "Last Wheel Color", eFeatureType.Button, "Cycles back to the last wheel color", function ()
-    local vehicle = PED.GET_VEHICLE_PED_IS_IN(PLAYER.PLAYER_PED_ID(), false)
-    local pearlColor = Memory.AllocInt()
-    local wheelColor = Memory.AllocInt()
-    VEHICLE.GET_VEHICLE_EXTRA_COLOURS(vehicle, pearlColor, wheelColor)
-    Memory.WriteInt(wheelColor, Memory.ReadInt(wheelColor) - 1)
-    VEHICLE.SET_VEHICLE_EXTRA_COLOURS(vehicle, Memory.ReadInt(pearlColor), Memory.ReadInt(wheelColor))
-    currentWheelColor = Memory.ReadInt(wheelColor)
-    Memory.Free(pearlColor)
-    Memory.Free(wheelColor)
-end)
-
-AddFeat(j("Set Wheel Color"), "Set Wheel Color", eFeatureType.Button, "Sets the selected wheel color", function ()
-    local vehicle = PED.GET_VEHICLE_PED_IS_IN(PLAYER.PLAYER_PED_ID(), false)
-    local pearlColor = Memory.AllocInt()
-    local wheelColor = Memory.AllocInt()
-    VEHICLE.GET_VEHICLE_EXTRA_COLOURS(vehicle, pearlColor, wheelColor)
-    VEHICLE.SET_VEHICLE_EXTRA_COLOURS(vehicle, Memory.ReadInt(pearlColor), FeatureMgr.GetFeature(j("inxWheelColor")):GetIntValue())
-    currentWheelColor = FeatureMgr.GetFeature(j("inxWheelColor")):GetIntValue()
-    Memory.Free(pearlColor)
-    Memory.Free(wheelColor)
-end)
-
-AddFeat(j("inxWheelColor"), "Wheel Color", eFeatureType.InputInt, "Put number of your wheel color here"):SetValue(222):SetMinValue(161):SetMaxValue(222)
-
---#endregion
-
 --#region SMALLER RETICLE
 local width, height = ImGui.GetDisplaySize()
 AddFeat(j("Smaller Reticle"), "Smaller Reticle", eFeatureType.Toggle, "Makes the crosshair smaller, similar to Story Mode.")
