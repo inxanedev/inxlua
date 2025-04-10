@@ -326,6 +326,26 @@ local function read_stat(index)
     return "FAILED TO READ"
 end
 
+local hasher_output = nil
+AddFeat(j("HasherInput"), "String to hash", eFeatureType.InputText, "String to hash using the JOAAT algorithm.", function (f)
+    local input = f:GetStringValue()
+    print(input)
+    if input == "" then
+        hasher_output = nil
+        return
+    end
+    hasher_output = j(input)
+end)
+
+AddFeat(j("HasherCopy"), "Copy hash to clipboard", eFeatureType.Button, "Copies the hasher output to your system clipboard.", function (f)
+    if hasher_output == nil then
+        inxNoti("Please type something in the 'String to hash' box first!")
+        return
+    end
+---@diagnostic disable-next-line: undefined-field
+    Utils.SetClipBoardText(tostring(hasher_output), "")
+end)
+
 --#endregion
 
 --#region BREATHING NEON KIT
@@ -689,6 +709,17 @@ ClickGUI.AddTab("inxlua", function ()
         ClickGUI.BeginCustomChildWindow("Unlocks")
         RenderFeat(j("UnlockChameleonPaints"))
         ClickGUI.EndCustomChildWindow()
+
+        ClickGUI.BeginCustomChildWindow("Hasher")
+        RenderFeat(j("HasherInput"))
+        if hasher_output ~= nil then
+            ImGui.Text("Hash: " .. hasher_output)
+        else
+            ImGui.Text("Hash: no input yet")
+        end
+        RenderFeat(j("HasherCopy"))
+        ClickGUI.EndCustomChildWindow()
+
         ImGui.NextColumn()
 
         ClickGUI.BeginCustomChildWindow("Packed Bool Stat Editor (single)")
